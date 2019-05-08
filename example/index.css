@@ -1,0 +1,18 @@
+:root {
+  --focus-color: #00308020;
+}
+
+button {
+  margin: 5px;
+}
+
+button:focus,
+div:focus,
+input:focus {
+  outline: 0;
+  box-shadow: 0 0 0 3px var(--focus-color);
+}
+
+button[aria-selected='true'] {
+  box-shadow: 0 0 0 3px var(--focus-color);
+}
