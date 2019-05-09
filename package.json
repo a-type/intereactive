@@ -36,7 +36,7 @@
     "pretty-quick": "^1.10.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "tsdx": "^0.5.7",
+    "tsdx": "^0.5.8",
     "tslib": "^1.9.3",
     "typescript": "^3.4.5"
   },

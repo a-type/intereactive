@@ -12,14 +12,14 @@ import React, {
 import { useRefOrProvided } from '../utils';
 
 export type FocusContextValue = {
-  groupName: string | null;
+  id: string | null;
   register(elementId: string, elementRef: Ref<HTMLElement> | null): void;
   unregister(elementId: string): void;
   focus(elementId: string): void;
 };
 
 export const FocusContext = createContext<FocusContextValue>({
-  groupName: null,
+  id: null,
   register: () => {},
   unregister: () => {},
   focus: () => {},
@@ -62,7 +62,7 @@ export const FocusProvider = forwardRef<any, FocusProviderProps>(
         return;
       }
 
-      const trapFocusInside = (ev: FocusEvent) => {
+      const trapFocusInside = (ev: Event) => {
         const target = ev.target as HTMLElement;
         if (container.contains(target)) {
           lastFocusedRef.current = target;
@@ -91,8 +91,8 @@ export const FocusProvider = forwardRef<any, FocusProviderProps>(
         }
       };
 
-      document.addEventListener('focus', trapFocusInside);
-      return document.removeEventListener('focus', trapFocusInside);
+      document.addEventListener('focusin', trapFocusInside);
+      return document.removeEventListener('focusin', trapFocusInside);
     }, [ref && ref.current, trapFocus]);
 
     const register = useCallback(
@@ -151,7 +151,7 @@ export const FocusProvider = forwardRef<any, FocusProviderProps>(
           register,
           unregister,
           focus,
-          groupName: groupName || null,
+          id: groupName || null,
         }}
       >
         {children(renderProps)}

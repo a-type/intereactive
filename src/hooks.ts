@@ -1,6 +1,5 @@
 import { useIdOrGenerated, useRefOrProvided } from './utils';
 import { useContext, useEffect, Ref } from 'react';
-import { SelectionElementContext } from './contexts/selection';
 import { FocusContext } from './contexts/focus';
 import { SubFocusContext } from './contexts/subFocus';
 
@@ -23,7 +22,6 @@ export const useFocusable = <T extends HTMLElement>({
 
   const focusContext = useContext(FocusContext);
   const subFocusContext = useContext(SubFocusContext);
-  const selectionContext = useContext(SelectionElementContext);
 
   const ref = useRefOrProvided<T>(providedRef);
 
@@ -34,7 +32,7 @@ export const useFocusable = <T extends HTMLElement>({
 
     focusContext.register(id, ref);
     return () => focusContext.unregister(id);
-  }, [focusContext && focusContext.groupName, ref]);
+  }, [focusContext && focusContext.id, ref]);
 
   useEffect(() => {
     if (!subFocusContext) {
@@ -45,23 +43,9 @@ export const useFocusable = <T extends HTMLElement>({
     return () => subFocusContext.unregister(id);
   }, [subFocusContext && subFocusContext.id, ref]);
 
-  useEffect(() => {
-    if (!selectionContext) {
-      return;
-    }
-
-    selectionContext.register(id);
-    return () => {
-      if (selectionContext) {
-        selectionContext.unregister(id);
-      }
-    };
-  }, [selectionContext && selectionContext.id, id]);
-
   return {
     id,
     ref,
-    'aria-selected': selectionContext && id === selectionContext.selectedId,
-    tabIndex: tabbable && !selectionContext ? 0 : -1,
+    ...(!subFocusContext ? { tabIndex: tabbable ? 0 : -1 } : {}),
   };
 };

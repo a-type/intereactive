@@ -30,7 +30,7 @@ export type SubFocusProviderRenderProps = {
   props: {
     id: string;
     ref: Ref<HTMLElement>;
-    tabIndex: number;
+    onKeyDown(event: KeyboardEvent<HTMLElement>): void;
   };
 };
 
@@ -77,6 +77,11 @@ export const SubFocusProvider = forwardRef<any, SubFocusProviderProps>(
       );
     };
 
+    const findElementIndex = (searchId: string) => {
+      const elements = elementsRef.current || [];
+      return elements.findIndex(({ id }) => id === searchId);
+    };
+
     const getElement = (index: number) => {
       const elements = elementsRef.current || [];
       const item = elements[index];
@@ -86,23 +91,25 @@ export const SubFocusProvider = forwardRef<any, SubFocusProviderProps>(
       return item.ref.current || null;
     };
 
-    const syncTabIndex = (currentIndex: number) => {
+    const syncTabIndex = (newIndex: number) => {
+      setSelectedIndex(newIndex);
       (elementsRef.current || []).forEach(({ ref }, index) => {
         const element = ref && ref.current;
         if (!element) {
           return;
         }
-        element.setAttribute('tabindex', index === currentIndex ? '0' : '-1');
+        element.setAttribute('tabindex', index === newIndex ? '0' : '-1');
       });
     };
 
     const onGlobalFocus = (event: Event) => {
       const rootElement = ref && ref.current;
-      console.log(ref);
       if (rootElement && !rootElement.contains(event.target as HTMLElement)) {
         setIsActive(false);
       } else if (rootElement && !isActive) {
-        syncTabIndex(selectedIndex);
+        const id = (event.target as HTMLElement).id;
+        const elementIndex = findElementIndex(id);
+        syncTabIndex(elementIndex);
         setIsActive(true);
       }
     };
@@ -112,16 +119,14 @@ export const SubFocusProvider = forwardRef<any, SubFocusProviderProps>(
       return () => document.removeEventListener('focusin', onGlobalFocus);
     }, []);
 
-    const onKeyDown = (event: KeyboardEvent<any>) => {
+    const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
       const elements = elementsRef.current || [];
 
       const moveFocus = (index: number) => {
         const focusElement = getElement(index);
 
         if (focusElement) {
-          syncTabIndex(index);
           focusElement.focus();
-          setSelectedIndex(index);
         }
       };
 
@@ -146,7 +151,6 @@ export const SubFocusProvider = forwardRef<any, SubFocusProviderProps>(
         id,
         ref,
         onKeyDown,
-        tabIndex: -1,
       },
     };
 

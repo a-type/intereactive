@@ -1,18 +1,147 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway+Dots|Roboto+Mono:100,300');
+
 :root {
-  --focus-color: #00308020;
+  --focus-color: #ffc014b9;
+  --focus-color-light: #ffc01420;
+  --link-color: #40edfa;
+  --bg-color-1: rgb(15, 15, 26);
+  --bg-color-2: rgb(6, 5, 7);
+  --bg-active-color: #22222a;
+  --fg-color: #e0e0e0;
+  --border-color: #a0a0a0;
+  --active-effect: 0 0 8px 0 var(--focus-color-light);
+  --focus-text-effect: 2px 2px 0 var(--focus-color-light),
+    4px 4px 0 var(--focus-color-light);
+  --focus-effect-neutral: 4px 4px 0 0 #a0a0a030, 8px 8px 0 0 #a0a0a030;
+  --focus-text-effect-neutral: 2px 2px 0 #c0c0c050, 4px 4px 0 #c0c0c050;
+}
+
+html {
+  margin: 0;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-color-1);
+  background: radial-gradient(
+    circle,
+    var(--bg-color-1) 0%,
+    var(--bg-color-2) 100%
+  );
+  color: var(--fg-color);
+  font-family: 'Roboto Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  font-weight: 300;
+}
+
+* {
+  box-sizing: border-box;
+  transition: 0.2s ease all;
+  /* cursor: none; */
 }
 
 button {
-  margin: 5px;
+  margin: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--fg-color);
+  color: inherit;
+  background: transparent;
+  font-family: inherit;
+}
+
+a {
+  color: var(--link-color);
+}
+
+a:focus {
+  color: var(--focus-color);
+  text-shadow: var(--focus-text-effect);
+  outline: 0;
 }
 
 button:focus,
 div:focus,
 input:focus {
   outline: 0;
-  box-shadow: 0 0 0 3px var(--focus-color);
+  border-color: var(--focus-color);
+  color: var(--focus-color);
+  text-shadow: var(--focus-text-effect);
+  background: radial-gradient(
+    circle,
+    transparent 0%,
+    transparent 40%,
+    var(--focus-color-light) 100%
+  );
+}
+
+button:active,
+input:active {
+  background: radial-gradient(
+    circle,
+    transparent 0%,
+    var(--focus-color-light) 40%,
+    var(--focus-color-light) 100%
+  );
+  box-shadow: var(--active-effect);
+  text-shadow: none;
 }
 
 button[aria-selected='true'] {
-  box-shadow: 0 0 0 3px var(--focus-color);
+  box-shadow: var(--focus-effect);
+}
+
+h1 {
+  font-weight: 400;
+  font-family: 'Raleway Dots', monospace;
+  font-size: 52px;
+  text-shadow: var(--focus-text-effect-neutral);
+}
+
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 100;
+}
+
+main {
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+section {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.subfocus-active {
+  background: radial-gradient(
+    circle,
+    transparent 0%,
+    transparent 40%,
+    var(--bg-active-color) 100%
+  );
+}
+
+.card {
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  max-width: 500px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+.row > * + * {
+  margin-left: 10px;
 }
