@@ -25,18 +25,18 @@ export const FocusContext = createContext<FocusContextValue>({
   focus: () => {},
 });
 
-export type FocusProviderRenderProps = {
-  ref: Ref<HTMLElement>;
+export type FocusProviderRenderProps<T extends HTMLElement> = {
+  ref: Ref<T>;
 };
 
-export type FocusProviderProps = {
+export type FocusProviderProps<T extends HTMLElement> = {
   groupName?: string;
   ref?: Ref<HTMLElement>;
-  children(renderProps: FocusProviderRenderProps): ReactNode;
+  children(renderProps: FocusProviderRenderProps<T>): ReactNode;
   trapFocus?: boolean;
 };
 
-export const FocusProvider = forwardRef<any, FocusProviderProps>(
+export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
   ({ groupName, trapFocus, children, ...rest }, providedRef) => {
     const elementsRef = useRef<
       { id: string; ref: RefObject<HTMLElement> | null }[]
@@ -51,7 +51,9 @@ export const FocusProvider = forwardRef<any, FocusProviderProps>(
     }
 
     useEffect(() => {
+      console.debug(`Registering focus provider`);
       if (!ref || !trapFocus) {
+        console.debug(`Bailing: ${ref}, ${!trapFocus}`);
         return;
       }
 
@@ -59,20 +61,25 @@ export const FocusProvider = forwardRef<any, FocusProviderProps>(
         ref.current || (typeof children !== 'function' ? document : null);
 
       if (!container) {
+        console.warn(`No container element attached to FocusProvider`);
         return;
       }
 
       const trapFocusInside = (ev: Event) => {
+        console.debug(`Running focus trap`);
         const target = ev.target as HTMLElement;
         if (container.contains(target)) {
           lastFocusedRef.current = target;
+          console.debug(`Element ${target} is within container`);
           return;
         }
 
         const firstFocusable = elementsRef.current[0];
         const firstFocusableElement =
           firstFocusable && firstFocusable.ref && firstFocusable.ref.current;
+        console.debug(`first: `, firstFocusableElement);
         if (lastFocusedRef.current === firstFocusableElement) {
+          console.debug(`Was on first element, wrapping to last`);
           const lastFocusable =
             elementsRef.current[elementsRef.current.length - 1];
           const lastFocusableElement =
@@ -83,6 +90,7 @@ export const FocusProvider = forwardRef<any, FocusProviderProps>(
             ev.preventDefault();
           }
         } else if (firstFocusableElement) {
+          console.debug(`Focusing first`);
           firstFocusableElement.focus();
           lastFocusedRef.current = firstFocusableElement;
           ev.preventDefault();
@@ -92,7 +100,7 @@ export const FocusProvider = forwardRef<any, FocusProviderProps>(
       };
 
       document.addEventListener('focusin', trapFocusInside);
-      return document.removeEventListener('focusin', trapFocusInside);
+      return () => document.removeEventListener('focusin', trapFocusInside);
     }, [ref && ref.current, trapFocus]);
 
     const register = useCallback(

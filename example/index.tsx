@@ -1,35 +1,48 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { FocusProvider, useFocusable, SubFocusProvider } from '../.';
+import {
+  FocusProvider,
+  useSelectable,
+  SelectionProvider,
+  useFocusable,
+} from '../src';
 import './index.css';
 
-const Button = props => <button {...props} {...useFocusable(props)} />;
-const Link = props => <a {...props} {...useFocusable(props)} />;
+const FocusableButton = props => {
+  const focusableProps = useFocusable(props);
+  return <button {...props} {...focusableProps} />;
+};
+const SelectableButton = props => {
+  const { props: selectableProps, selected } = useSelectable(props);
+  return <button {...props} {...selectableProps} />;
+};
+const Link = props => {
+  return <a {...props} />;
+};
 
 const Widget = () => {
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [selectedValue, setSelectedValue] = React.useState('in');
 
   return (
-    <SubFocusProvider
-      axis="both"
-      onSelectionChanged={({ index }) => setSelectedIndex(index)}
-      selectedIndex={selectedIndex}
-    >
-      {({ props, isActive }) => (
-        <div {...props} className={isActive ? 'subfocus-active card' : 'card'}>
+    <SelectionProvider value={selectedValue} onChange={setSelectedValue}>
+      {({ focusElementProps, containerProps }) => (
+        <div
+          {...containerProps}
+          className={false ? 'subfocus-active card' : 'card'}
+        >
           <p>
             Arrow keys can be used inside sub-focus containers, grouping several
             interactive components into one for tabbing.
           </p>
           <div className="row">
-            <Button>in</Button>
-            <Button>te</Button>
-            <Button>rr</Button>
-            <Button>ea</Button>
-            <Button>ct</Button>
-            <Button>iv</Button>
-            <Button>e.</Button>
+            <SelectableButton value="in">in</SelectableButton>
+            <SelectableButton value="te">te</SelectableButton>
+            <SelectableButton value="rr">rr</SelectableButton>
+            <SelectableButton value="ea">ea</SelectableButton>
+            <SelectableButton value="ct">ct</SelectableButton>
+            <SelectableButton value="iv">iv</SelectableButton>
+            <SelectableButton value="e.">e.</SelectableButton>
           </div>
           <p>
             You can specify a direction axis: horizontal, vertical, or both.
@@ -39,26 +52,26 @@ const Widget = () => {
           </p>
         </div>
       )}
-    </SubFocusProvider>
+    </SelectionProvider>
   );
 };
 
 const Trap = ({ onClose }) => {
   return (
-    <FocusProvider id="focusTrap" trapFocus>
-      {({ props }) => (
-        <div className="card" {...props}>
+    <FocusProvider trapFocus>
+      {({ ref }) => (
+        <div className="card" ref={ref}>
           <p>
             There's no use struggling. Your focus is trapped inside this box.
             Don't worry, though, we have plenty of buttons to entertain you.
           </p>
           <div className="row">
-            <Button>you</Button>
-            <Button>are</Button>
-            <Button>happy</Button>
-            <Button>here.</Button>
+            <FocusableButton>you</FocusableButton>
+            <FocusableButton>are</FocusableButton>
+            <FocusableButton>happy</FocusableButton>
+            <FocusableButton>here.</FocusableButton>
           </div>
-          <Button onClick={onClose}>escape</Button>
+          <FocusableButton onClick={onClose}>escape</FocusableButton>
         </div>
       )}
     </FocusProvider>
@@ -71,7 +84,9 @@ const TrapToggle = () => {
   return showTrap ? (
     <Trap onClose={() => setShowTrap(false)} />
   ) : (
-    <Button onClick={() => setShowTrap(true)}>enter focus trap</Button>
+    <FocusableButton onClick={() => setShowTrap(true)}>
+      enter focus trap
+    </FocusableButton>
   );
 };
 
@@ -86,7 +101,7 @@ const App = () => {
               Welcome. Please check your mouse at the door; we use keyboards
               only here. Enjoy your stay.
             </p>
-            <Button>Try tabbing to this button</Button>
+            <FocusableButton>Try tabbing to this button</FocusableButton>
           </section>
           <section>
             <h2>about</h2>
@@ -98,7 +113,7 @@ const App = () => {
               complex tab control and keyboard selection interactions in your
               widgets with a set of easy-to-use tools.
             </p>
-            <Button>Keep tabbing here</Button>
+            <FocusableButton>Keep tabbing here</FocusableButton>
           </section>
           <section>
             <h2>sub-focus groups ("roving tab index")</h2>

@@ -1,4 +1,4 @@
-import { useRef, Ref } from 'react';
+import { useRef, Ref, useCallback, MutableRefObject } from 'react';
 import { KeyCode } from './types';
 
 export const generateId = (base?: string): string => {
@@ -10,6 +10,28 @@ export const useRefOrProvided = <T extends any>(
 ): Ref<T> => {
   const internalRef = useRef<T>(null);
   return providedRef || internalRef;
+};
+
+export const assignRef = <T>(ref: Ref<T>, el: T) => {
+  if (typeof ref === 'function') {
+    ref(el);
+  } else {
+    (ref as MutableRefObject<T>).current = el;
+  }
+};
+
+export const useCombinedRefs = <T>(
+  refA: Ref<T> | undefined,
+  refB: Ref<T> | undefined
+) => {
+  const finalRef = useCallback(
+    (el: T) => {
+      refA && assignRef(refA, el);
+      refB && assignRef(refB, el);
+    },
+    [refA, refB]
+  );
+  return finalRef;
 };
 
 export const useIdOrGenerated = (
@@ -75,5 +97,14 @@ export const getMovementKeys = (axis: 'horizontal' | 'vertical' | 'both') => {
         nextSibling: [],
         previousSibling: [],
       };
+  }
+};
+
+export const walkSubtree = (root: Node, visitor: (el: Node) => any) => {
+  visitor(root);
+  let child = root.firstChild;
+  while (child) {
+    walkSubtree(child, visitor);
+    child = child.nextSibling;
   }
 };
