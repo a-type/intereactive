@@ -9,14 +9,16 @@
     "dist-esm"
   ],
   "scripts": {
-    "start": "tsdx watch",
+    "start:cjs": "tsc -w",
+    "start:esm": "tsc -w -m es6 --outDir dist-esm",
+    "start": "run-p start:*",
     "build:clean:cjs": "rimraf dist",
     "build:clean:esm": "rimraf dist-esm",
     "build:clean": "run-p build:clean:*",
     "build:cjs": "tsc",
     "build:esm": "tsc -m es6 --outDir dist-esm",
     "build": "run-s build:*",
-    "test": "tsdx test --env=jsdom"
+    "test": "echo \"No tests\""
   },
   "peerDependencies": {
     "react": ">=16"
