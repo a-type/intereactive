@@ -6,7 +6,7 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html",
-    "build:gh": "parcel build index.html"
+    "build:gh": "parcel build index.html --public-url /interreactive/"
   },
   "dependencies": {
     "react-app-polyfill": "^1.0.0",
