@@ -48,6 +48,8 @@
     "tslib": "^1.10.0",
     "tslint": "^6.0.0",
     "tslint-react-hooks": "^2.2.1",
+    "typedoc": "^0.17.0-3",
+    "typedoc-plugin-internal-external": "^2.1.1",
     "typescript": "^3.7.5"
   },
   "dependencies": {

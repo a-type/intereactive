@@ -7,6 +7,10 @@ export type FocusableConfig<T extends HTMLElement> = {
   ref?: Ref<T> | null;
 };
 
+/**
+ *
+ * @category Focus
+ */
 export const useFocusable = <T extends HTMLElement>({
   id: providedId,
   ref: providedRef,
@@ -25,7 +29,7 @@ export const useFocusable = <T extends HTMLElement>({
 
     focusContext.register(id, internalRef);
     return () => focusContext.unregister(id);
-  }, [focusContext && focusContext.id, internalRef]);
+  }, [focusContext, internalRef]);
 
   return {
     id,

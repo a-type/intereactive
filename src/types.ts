@@ -1,3 +1,6 @@
+/** @external */
+/**  */
+
 export enum KeyCode {
   Space = 32,
   Enter = 13,

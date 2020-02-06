@@ -1,9 +1,10 @@
+/** @category Focus */
+
 import React, {
   createContext,
   RefObject,
   useCallback,
   Ref,
-  useContext,
   useRef,
   useEffect,
   forwardRef,
@@ -13,27 +14,35 @@ import React, {
 import { useCombinedRefs } from '../utils';
 
 export type FocusContextValue = {
-  id: string | null;
+  /** registers an element as available for focus control */
   register(elementId: string, elementRef: RefObject<HTMLElement>): void;
+  /** unregisters an element as available for focus control */
   unregister(elementId: string): void;
+  /** imperatively focuses an element by id */
   focus(elementId: string): void;
 };
 
 export const FocusContext = createContext<FocusContextValue>({
-  id: null,
   register: () => {},
   unregister: () => {},
   focus: () => {},
 });
 
 export type FocusProviderProps<P = HTMLAttributes<HTMLDivElement>> = {
+  /** optional group name to make debugging easier */
   groupName?: string;
-  ref?: Ref<HTMLElement>;
+  /** enable trapping focus within this container */
   trapFocus?: boolean;
+  /** override the component used to render the container element */
   component?: ElementType<P>;
-  onClose?: () => void;
 } & P;
 
+/**
+ * A FocusContainer wraps focusable elements, allowing you to trap focus
+ * or imperatively focus specific components.
+ *
+ * @category Focus
+ */
 export const FocusContainer = forwardRef<any, FocusProviderProps>(
   (
     {
@@ -41,7 +50,6 @@ export const FocusContainer = forwardRef<any, FocusProviderProps>(
       trapFocus,
       children,
       component: CustomComponent = 'div',
-      onClose,
       ...rest
     },
     providedRef
@@ -68,7 +76,6 @@ export const FocusContainer = forwardRef<any, FocusProviderProps>(
       }
 
       const trapFocusInside = (ev: Event) => {
-        console.debug(`Running focus trap`);
         const target = ev.target as HTMLElement;
         if (container.contains(target)) {
           lastFocusedRef.current = target;
@@ -168,7 +175,6 @@ export const FocusContainer = forwardRef<any, FocusProviderProps>(
           register,
           unregister,
           focus,
-          id: groupName || null,
         }}
       >
         {/*  multiline comment format required for prettier and ts to work in jsx.
@@ -188,9 +194,3 @@ export const FocusContainer = forwardRef<any, FocusProviderProps>(
     );
   }
 );
-
-export const useImperativeFocus = () => {
-  const focusContext = useContext(FocusContext);
-
-  return focusContext.focus;
-};

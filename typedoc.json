@@ -1,0 +1,9 @@
+{
+  "inputFiles": ["./src/index.ts"],
+  "out": "docs",
+  "excludeNotExported": true,
+  "excludeExternals": true,
+  "mode": "library",
+  "exclude": ["./src/constants.ts", "./src/types.ts", "./src/utils.ts"],
+  "categorizeByGroup": true
+}
