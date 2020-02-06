@@ -4,8 +4,7 @@ import React, {
   useState,
   useEffect,
   ReactElement,
-  useMemo,
-  forwardRef,
+  FC,
 } from 'react';
 import { useSelectableChildren } from '../utils';
 
@@ -42,107 +41,96 @@ export interface RovingTabContextProviderRenderProps {
   isFocusWithinContainer: boolean;
 }
 
-export const RovingTabProvider = forwardRef<
-  { selectItem: (index: number) => void },
-  RovingTabContextProviderProps
->(
-  ({
-    noWrap,
-    children,
-    onChange,
+export const RovingTabProvider: FC<RovingTabContextProviderProps> = ({
+  noWrap,
+  children,
+  onChange,
+  observeDeep,
+  itemCount,
+  axis = 'vertical',
+  value,
+  ...rest
+}) => {
+  const {
+    selectedIndex,
+    selectedKey,
+    setSelectedIndex,
+    goToNext,
+    goToPrevious,
+    findElementIndex,
+    getElement,
+    handleContainerElement,
+  } = useSelectableChildren({
     observeDeep,
     itemCount,
-    axis = 'vertical',
-    value,
-    ...rest
-  }) => {
-    const {
-      selectedIndex,
-      selectableOrder,
-      setSelectedIndex,
-      goToNext,
-      goToPrevious,
-      findElementIndex,
-      getElement,
-      handleContainerElement,
-    } = useSelectableChildren({
-      observeDeep,
-      itemCount,
-    });
+  });
 
-    // track whether one of the children is currently focused, for convenience
-    // and styling options.
-    const [isFocusWithinContainer, setIsFocusWithinContainer] = useState(false);
-    const containerRef = useCallback(
-      (el: HTMLElement) => {
-        handleContainerElement(el);
-        if (el === null) {
+  // track whether one of the children is currently focused, for convenience
+  // and styling options.
+  const [isFocusWithinContainer, setIsFocusWithinContainer] = useState(false);
+  const containerRef = useCallback(
+    (el: HTMLElement) => {
+      handleContainerElement(el);
+      if (el === null) {
+        setIsFocusWithinContainer(false);
+      } else {
+        el.addEventListener('focusin', () => {
+          setIsFocusWithinContainer(true);
+        });
+        el.addEventListener('focusout', () => {
           setIsFocusWithinContainer(false);
-        } else {
-          el.addEventListener('focusin', () => {
-            setIsFocusWithinContainer(true);
-          });
-          el.addEventListener('focusout', () => {
-            setIsFocusWithinContainer(false);
-          });
-        }
-      },
-      [setIsFocusWithinContainer]
-    );
-
-    // when the controlled value changes, update the selected index to match
-    useEffect(() => {
-      const idx = value !== undefined ? findElementIndex(value) : 0;
-      setSelectedIndex(idx);
-    }, [value, findElementIndex]);
-
-    // respond to changes in selected index to focus the new element.
-    // the actual roving tabindex is handled in the hook.
-    useEffect(() => {
-      const el = getElement(selectedIndex);
-      if (!el) {
-        console.warn(
-          `Index ${selectedIndex} was selected, but no element registered`
-        );
-        return;
+        });
       }
-      el.focus();
-      el.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
-      });
-    }, [selectedIndex, getElement]);
+    },
+    [setIsFocusWithinContainer, handleContainerElement]
+  );
 
-    // when the user selects an item, force update the selected index
-    // TODO: move this behavior to a focus handler in the hook?
-    const onSelect = useCallback(
-      (key: string, value?: any) => {
-        setSelectedIndex(findElementIndex(key));
-        onChange(value);
-      },
-      [setSelectedIndex, findElementIndex, onChange]
-    );
+  // when the controlled value changes, update the selected index to match
+  useEffect(() => {
+    const idx = value !== undefined ? findElementIndex(value) : 0;
+    setSelectedIndex(idx);
+  }, [value, findElementIndex]);
 
-    // lookup the selected item key based on the index
-    const selectedKey = useMemo(() => {
-      const key = selectableOrder[selectedIndex];
-      return key || selectableOrder[0];
-    }, [selectableOrder, selectedIndex]);
+  // respond to changes in selected index to focus the new element.
+  // the actual roving tabindex is handled in the hook.
+  useEffect(() => {
+    const el = getElement(selectedIndex);
+    if (!el) {
+      console.warn(
+        `Index ${selectedIndex} was selected, but no element registered`
+      );
+      return;
+    }
+    el.focus();
+    el.scrollIntoView({
+      block: 'nearest',
+      behavior: 'smooth',
+    });
+  }, [selectedIndex, getElement]);
 
-    const renderProps = {
-      props: {
-        ref: containerRef,
-      },
-      isFocusWithinContainer,
-    };
+  // when the user selects an item, force update the selected index
+  // TODO: move this behavior to a focus handler in the hook?
+  const onSelect = useCallback(
+    (key: string, value?: any) => {
+      setSelectedIndex(findElementIndex(key));
+      onChange(value);
+    },
+    [setSelectedIndex, findElementIndex, onChange]
+  );
 
-    return (
-      <RovingTabContext.Provider
-        value={{ onSelect, selectedKey, goToNext, goToPrevious }}
-        {...rest}
-      >
-        {children(renderProps)}
-      </RovingTabContext.Provider>
-    );
-  }
-);
+  const renderProps = {
+    props: {
+      ref: containerRef,
+    },
+    isFocusWithinContainer,
+  };
+
+  return (
+    <RovingTabContext.Provider
+      value={{ onSelect, selectedKey, goToNext, goToPrevious }}
+      {...rest}
+    >
+      {children(renderProps)}
+    </RovingTabContext.Provider>
+  );
+};

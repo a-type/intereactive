@@ -9,6 +9,11 @@ import {
   useImperativeFocus,
 } from '../src';
 import './index.css';
+import { SelectionProvider } from '../src/contexts/selection';
+import { Manager, Reference, Popper } from 'react-popper';
+import { useSelectionFocusElement } from '../src/hooks/useSelectionFocusElement';
+import { useSelectionItem } from '../src/hooks/useSelectionItem';
+import { useSelectionOptionsContainer } from '../src/hooks/useSelectionOptionsContainer';
 
 const FocusableButton = props => {
   const focusableProps = useFocusable(props);
@@ -22,7 +27,20 @@ const Link = props => {
   return <a {...props} />;
 };
 
-const SelectableOptions = () => {
+const ImperativeFocus = () => {
+  const focus = useImperativeFocus();
+
+  return (
+    <div className="row">
+      <FocusableButton id="focus-me">Keep tabbing here</FocusableButton>
+      <FocusableButton id="focus-other" onClick={() => focus('focus-me')}>
+        Press to focus previous button
+      </FocusableButton>
+    </div>
+  );
+};
+
+const RovingTab = () => {
   const [selectedValue, setSelectedValue] = React.useState('in');
 
   return (
@@ -36,7 +54,8 @@ const SelectableOptions = () => {
             Arrow keys can be used inside a selectable group to move between
             options. Each option becomes the focused element when you move to
             it. This is a technique called "roving tab index", since we move the
-            focus-ability property between the elements as you navigate.
+            "tab index" property (which controls the ability to focus) between
+            the elements as you navigate.
           </p>
           <div className="row">
             <SelectableButton value="in">in</SelectableButton>
@@ -57,6 +76,164 @@ const SelectableOptions = () => {
   );
 };
 
+const SelectInput = React.forwardRef<any, any>((props, ref) => {
+  const { props: selectionProps } = useSelectionFocusElement({ ref });
+
+  return (
+    <input {...props} {...selectionProps} placeholder="Type something..." />
+  );
+});
+
+const SelectOption = React.forwardRef<
+  any,
+  { value: string; children: React.ReactNode }
+>(({ value, ...props }, ref) => {
+  const { props: selectionProps, isActive } = useSelectionItem({ value });
+
+  return (
+    <li
+      role="option"
+      aria-selected={isActive}
+      {...props}
+      {...selectionProps}
+      ref={ref}
+      className="select-option"
+    />
+  );
+});
+
+const SelectOptions = React.forwardRef<
+  any,
+  { children: React.ReactNode; className?: string; style?: React.CSSProperties }
+>((props, ref) => {
+  const { props: selectionProps } = useSelectionOptionsContainer({ ref });
+
+  return <ul role="listbox" {...props} {...selectionProps} />;
+});
+
+const defaultOptions = [
+  {
+    id: '1',
+    name: 'IN',
+  },
+  {
+    id: '2',
+    name: 'TE',
+  },
+  {
+    id: '3',
+    name: 'RR',
+  },
+  {
+    id: '4',
+    name: 'EA',
+  },
+  {
+    id: '5',
+    name: 'CT',
+  },
+  {
+    id: '6',
+    name: 'IV',
+  },
+  {
+    id: '7',
+    name: 'E.',
+  },
+];
+
+const Select = () => {
+  const [value, setValue] = React.useState<string | null>(null);
+  const [inputValue, setInputValue] = React.useState<string>('');
+  const [options, setOptions] = React.useState([...defaultOptions]);
+
+  // update the input value when the user types
+  const handleInputChange = React.useCallback(
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(ev.target.value);
+    },
+    [setInputValue]
+  );
+
+  // filter available options by the input value
+  const filteredOptions = React.useMemo(
+    () =>
+      options.filter(opt =>
+        opt.name.toLowerCase().includes(inputValue?.toLowerCase() ?? '')
+      ),
+    [inputValue, options]
+  );
+
+  const handleValueChange = React.useCallback(
+    (newValue: string) => {
+      // using a static "create" value is one way to allow custom entries
+      // not included in the suggestions list.
+      if (newValue === 'create') {
+        // hypothetically, you'd want to call some API or something in a real app.
+        // for this simple example, we just push the new option onto our list
+        const newId = `${Math.floor(Math.random() * 1000000)}`;
+        setOptions(existing => [
+          ...existing,
+          {
+            id: newId,
+            name: inputValue,
+          },
+        ]);
+        setValue(newId);
+      } else {
+        setValue(newValue);
+      }
+    },
+    [setValue, inputValue, setOptions]
+  );
+
+  // when the selected value changes, populate it into the input
+  React.useEffect(() => {
+    setInputValue(options.find(({ id }) => id === value)?.name ?? '');
+  }, [value, setInputValue]);
+
+  return (
+    <SelectionProvider value={value} onChange={handleValueChange} closeOnSelect>
+      {({ isOpen }) => (
+        <>
+          <Manager>
+            <Reference>
+              {({ ref }) => (
+                <SelectInput
+                  ref={ref}
+                  onChange={handleInputChange}
+                  value={inputValue}
+                />
+              )}
+            </Reference>
+            {isOpen && (
+              <Popper placement="bottom">
+                {({ ref, style, placement }) => (
+                  <SelectOptions
+                    className="popper"
+                    ref={ref}
+                    style={style}
+                    data-placement={placement}
+                  >
+                    {filteredOptions.map(opt => (
+                      <SelectOption key={opt.id} value={opt.id}>
+                        {opt.name}
+                      </SelectOption>
+                    ))}
+                    {filteredOptions.length === 0 && (
+                      <SelectOption value="create">{inputValue}</SelectOption>
+                    )}
+                  </SelectOptions>
+                )}
+              </Popper>
+            )}
+          </Manager>
+        </>
+      )}
+    </SelectionProvider>
+  );
+};
+
 const Trap = ({ onClose }) => {
   return (
     <FocusContainer trapFocus className="card">
@@ -64,7 +241,7 @@ const Trap = ({ onClose }) => {
         There's no use struggling. Your focus is trapped inside this box. Don't
         worry, though, we have plenty of buttons to entertain you.
       </p>
-      <div className="row">
+      <div className="row" style={{ marginBottom: 12 }}>
         {/** interreactive is compatible with native autoFocus */}
         <FocusableButton autoFocus>you</FocusableButton>
         <FocusableButton>are</FocusableButton>
@@ -121,11 +298,36 @@ const App = () => {
           complex tab control and keyboard selection interactions in your
           widgets with a set of easy-to-use tools.
         </p>
-        <FocusableButton>Keep tabbing here</FocusableButton>
       </section>
       <section>
-        <h2>selectable options ("roving tab index")</h2>
-        <SelectableOptions />
+        <h2>imperative focus</h2>
+        <p>
+          When you wrap your app in a FocusContainer, you can imperatively focus
+          an element from anywhere by id.
+        </p>
+        <ImperativeFocus />
+      </section>
+      <section>
+        <h2>option selection</h2>
+        <p>
+          It wouldn't be a selection tool without an autocomplete input demo.
+          interreactive provides tooling to control visual selection via a
+          disconnected element's keyboard interactions. By connecting an
+          interactive input to a list of options, you can create your own
+          customized autocomplete experience with just a few hooks.
+        </p>
+        <Select />
+        <p>
+          In the demo above, you can even type in your own values to add new
+          items. interreactive doesn't get in the way of customized behaviors
+          you want to implement, or force you to implement them in specific
+          ways. It handles the interactivity of selecting items from the list -
+          that's all.
+        </p>
+      </section>
+      <section>
+        <h2>"roving tab index"</h2>
+        <RovingTab />
       </section>
       <section>
         <h2>focus traps</h2>

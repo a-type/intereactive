@@ -5,6 +5,7 @@ import {
   MutableRefObject,
   useState,
   useEffect,
+  useMemo,
 } from 'react';
 import { KeyCode } from './types';
 import { KEY_DATA_ATTRIBUTE, INDEX_DATA_ATTRIBUTE } from './constants';
@@ -239,6 +240,12 @@ export const useSelectableChildren = ({
     setSelectedIndex(newIndex);
   }, [selectedIndex, setSelectedIndex, finalItemCount, wrap]);
 
+  // lookup the selected item key based on the index
+  const selectedKey = useMemo(() => {
+    const key = selectableOrder[selectedIndex];
+    return key || selectableOrder[0];
+  }, [selectableOrder, selectedIndex]);
+
   return {
     handleContainerElement,
     selectableOrder,
@@ -250,5 +257,6 @@ export const useSelectableChildren = ({
     goToNext,
     goToPrevious,
     setSelectedIndex,
+    selectedKey,
   };
 };
