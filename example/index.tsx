@@ -3,8 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   FocusContainer,
-  useSelectable,
-  SelectionProvider,
+  useRovingTabItem,
+  RovingTabProvider,
   useFocusable,
   useImperativeFocus,
 } from '../src';
@@ -15,7 +15,7 @@ const FocusableButton = props => {
   return <button {...props} {...focusableProps} />;
 };
 const SelectableButton = props => {
-  const { props: selectableProps, selected } = useSelectable(props);
+  const { props: selectableProps, selected } = useRovingTabItem(props);
   return <button {...props} {...selectableProps} />;
 };
 const Link = props => {
@@ -26,7 +26,7 @@ const SelectableOptions = () => {
   const [selectedValue, setSelectedValue] = React.useState('in');
 
   return (
-    <SelectionProvider value={selectedValue} onChange={setSelectedValue}>
+    <RovingTabProvider value={selectedValue} onChange={setSelectedValue}>
       {({ props, isFocusWithinContainer }) => (
         <div
           {...props}
@@ -53,7 +53,7 @@ const SelectableOptions = () => {
           </p>
         </div>
       )}
-    </SelectionProvider>
+    </RovingTabProvider>
   );
 };
 

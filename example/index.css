@@ -34,6 +34,8 @@ body {
   display: flex;
   flex-direction: column;
   font-weight: 300;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 * {

@@ -1,2 +1,2 @@
 export * from './useFocusable';
-export * from './useSelectable';
+export * from './useRovingTabItem';

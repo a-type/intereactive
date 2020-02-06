@@ -6,7 +6,7 @@ import {
   useCallback,
   KeyboardEvent,
 } from 'react';
-import SelectionContext from '../contexts/selection';
+import RovingTabContext from '../contexts/rovingTab';
 import { KeyCode } from '../types';
 import { getMovementKeys } from '../utils';
 import {
@@ -22,14 +22,14 @@ export type UseSelectableOptions = {
   axis?: 'vertical' | 'horizontal' | 'both';
 };
 
-export const useSelectable = ({
+export const useRovingTabItem = ({
   value,
   ref,
   index,
   axis = 'both',
 }: UseSelectableOptions = {}) => {
   const { onSelect, goToNext, goToPrevious, selectedKey } = useContext(
-    SelectionContext
+    RovingTabContext
   );
   const { current: key } = useRef(
     value || `suggestion-${Math.floor(Math.random() * 10000000000)}`
