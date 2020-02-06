@@ -5,17 +5,15 @@ import {
   MutableRefObject,
   useCallback,
   KeyboardEvent,
-  useEffect,
 } from 'react';
-import SelectionContext from './contexts/selection';
-import { KeyCode } from './types';
-import { getMovementKeys, useIdOrGenerated, useRefOrProvided } from './utils';
-import { FocusContext } from './contexts/focus';
+import SelectionContext from '../contexts/selection';
+import { KeyCode } from '../types';
+import { getMovementKeys } from '../utils';
 import {
   KEY_DATA_ATTRIBUTE,
   VALUE_DATA_ATTRIBUTE,
   INDEX_DATA_ATTRIBUTE,
-} from './constants';
+} from '../constants';
 
 export type UseSelectableOptions = {
   value?: string;
@@ -82,36 +80,5 @@ export const useSelectable = ({
       tabIndex: selectedKey === key ? 0 : -1,
     },
     selected: selectedKey === key,
-  };
-};
-
-export type FocusableConfig<T extends HTMLElement> = {
-  id?: string;
-  ref?: Ref<T> | null;
-};
-
-export const useFocusable = <T extends HTMLElement>({
-  id: providedId,
-  ref: providedRef,
-}: FocusableConfig<T>) => {
-  const id = useIdOrGenerated(providedId, 'focusable');
-
-  const focusContext = useContext(FocusContext);
-
-  const ref = useRefOrProvided<T>(providedRef);
-
-  useEffect(() => {
-    if (!focusContext) {
-      return;
-    }
-
-    focusContext.register(id, ref);
-    return () => focusContext.unregister(id);
-  }, [focusContext && focusContext.id, ref]);
-
-  return {
-    id,
-    ref,
-    tabIndex: 0,
   };
 };

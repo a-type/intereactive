@@ -2,10 +2,11 @@ import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  FocusProvider,
+  FocusContainer,
   useSelectable,
   SelectionProvider,
   useFocusable,
+  useImperativeFocus,
 } from '../src';
 import './index.css';
 
@@ -21,19 +22,21 @@ const Link = props => {
   return <a {...props} />;
 };
 
-const Widget = () => {
+const SelectableOptions = () => {
   const [selectedValue, setSelectedValue] = React.useState('in');
 
   return (
     <SelectionProvider value={selectedValue} onChange={setSelectedValue}>
-      {({ focusElementProps, containerProps }) => (
+      {({ props, isFocusWithinContainer }) => (
         <div
-          {...containerProps}
-          className={false ? 'subfocus-active card' : 'card'}
+          {...props}
+          className={isFocusWithinContainer ? 'subfocus-active card' : 'card'}
         >
           <p>
-            Arrow keys can be used inside sub-focus containers, grouping several
-            interactive components into one for tabbing.
+            Arrow keys can be used inside a selectable group to move between
+            options. Each option becomes the focused element when you move to
+            it. This is a technique called "roving tab index", since we move the
+            focus-ability property between the elements as you navigate.
           </p>
           <div className="row">
             <SelectableButton value="in">in</SelectableButton>
@@ -45,10 +48,8 @@ const Widget = () => {
             <SelectableButton value="e.">e.</SelectableButton>
           </div>
           <p>
-            You can specify a direction axis: horizontal, vertical, or both.
-            interreactive will move the tabindex between focusable children in a
-            sub-focus group for you, so that if a user tabs back into this
-            group, the last focused element will be restored. Try it.
+            If a user tabs back into this group, the last focused element will
+            be restored. Try it.
           </p>
         </div>
       )}
@@ -58,33 +59,42 @@ const Widget = () => {
 
 const Trap = ({ onClose }) => {
   return (
-    <FocusProvider trapFocus>
-      {({ ref }) => (
-        <div className="card" ref={ref}>
-          <p>
-            There's no use struggling. Your focus is trapped inside this box.
-            Don't worry, though, we have plenty of buttons to entertain you.
-          </p>
-          <div className="row">
-            <FocusableButton>you</FocusableButton>
-            <FocusableButton>are</FocusableButton>
-            <FocusableButton>happy</FocusableButton>
-            <FocusableButton>here.</FocusableButton>
-          </div>
-          <FocusableButton onClick={onClose}>escape</FocusableButton>
-        </div>
-      )}
-    </FocusProvider>
+    <FocusContainer trapFocus className="card">
+      <p>
+        There's no use struggling. Your focus is trapped inside this box. Don't
+        worry, though, we have plenty of buttons to entertain you.
+      </p>
+      <div className="row">
+        {/** interreactive is compatible with native autoFocus */}
+        <FocusableButton autoFocus>you</FocusableButton>
+        <FocusableButton>are</FocusableButton>
+        <FocusableButton>happy</FocusableButton>
+        <FocusableButton>here.</FocusableButton>
+      </div>
+      <FocusableButton onClick={onClose}>escape</FocusableButton>
+    </FocusContainer>
   );
 };
 
 const TrapToggle = () => {
   const [showTrap, setShowTrap] = React.useState(false);
+  const focus = useImperativeFocus();
+
+  const handleTrapClose = React.useCallback(() => {
+    setShowTrap(false);
+  }, [focus, setShowTrap]);
+
+  // when the trap is closed, run a side-effect of re-focusing the trigger button
+  React.useEffect(() => {
+    if (!showTrap) {
+      focus('trap-button');
+    }
+  }, [focus, showTrap]);
 
   return showTrap ? (
-    <Trap onClose={() => setShowTrap(false)} />
+    <Trap onClose={handleTrapClose} />
   ) : (
-    <FocusableButton onClick={() => setShowTrap(true)}>
+    <FocusableButton onClick={() => setShowTrap(true)} id="trap-button">
       enter focus trap
     </FocusableButton>
   );
@@ -92,46 +102,42 @@ const TrapToggle = () => {
 
 const App = () => {
   return (
-    <FocusProvider>
-      {() => (
-        <main>
-          <h1>interreactive</h1>
-          <section>
-            <p>
-              Welcome. Please check your mouse at the door; we use keyboards
-              only here. Enjoy your stay.
-            </p>
-            <FocusableButton>Try tabbing to this button</FocusableButton>
-          </section>
-          <section>
-            <h2>about</h2>
-            <p>
-              <Link href="https://github.com/a-type/interreactive">
-                interreactive
-              </Link>{' '}
-              is the missing focus and selection manager for React. It enables
-              complex tab control and keyboard selection interactions in your
-              widgets with a set of easy-to-use tools.
-            </p>
-            <FocusableButton>Keep tabbing here</FocusableButton>
-          </section>
-          <section>
-            <h2>sub-focus groups ("roving tab index")</h2>
-            <Widget />
-          </section>
-          <section>
-            <h2>focus traps</h2>
-            <p>
-              Often, especially in modal dialogs, you'll want to restrict focus
-              to a particular area of the page. It's easy to believe you've done
-              this using a click-outside handler, but you need a focus trap to
-              cover keyboard navigation.
-            </p>
-            <TrapToggle />
-          </section>
-        </main>
-      )}
-    </FocusProvider>
+    <FocusContainer component="main">
+      <h1>interreactive</h1>
+      <section>
+        <p>
+          Welcome. Please check your mouse at the door; we use keyboards only
+          here. Enjoy your stay.
+        </p>
+        <FocusableButton>Try tabbing to this button</FocusableButton>
+      </section>
+      <section>
+        <h2>about</h2>
+        <p>
+          <Link href="https://github.com/a-type/interreactive">
+            interreactive
+          </Link>{' '}
+          is the missing focus and selection manager for React. It enables
+          complex tab control and keyboard selection interactions in your
+          widgets with a set of easy-to-use tools.
+        </p>
+        <FocusableButton>Keep tabbing here</FocusableButton>
+      </section>
+      <section>
+        <h2>selectable options ("roving tab index")</h2>
+        <SelectableOptions />
+      </section>
+      <section>
+        <h2>focus traps</h2>
+        <p>
+          Often, especially in modal dialogs, you'll want to restrict focus to a
+          particular area of the page. It's easy to believe you've done this
+          using a click-outside handler, but you need a focus trap to cover
+          keyboard navigation.
+        </p>
+        <TrapToggle />
+      </section>
+    </FocusContainer>
   );
 };
 

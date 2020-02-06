@@ -3,19 +3,13 @@ import React, {
   useRef,
   useCallback,
   useState,
-  RefObject,
   useEffect,
   ReactElement,
   useMemo,
   useImperativeHandle,
   forwardRef,
 } from 'react';
-import {
-  getNextIndex,
-  getPreviousIndex,
-  walkSubtree,
-  useCombinedRefs,
-} from '../utils';
+import { getNextIndex, getPreviousIndex, walkSubtree } from '../utils';
 import { INDEX_DATA_ATTRIBUTE, KEY_DATA_ATTRIBUTE } from '../constants';
 
 export type SelectionContextValue = {
@@ -45,15 +39,10 @@ export interface SelectionContextProviderProps {
 }
 
 export interface SelectionContextProviderRenderProps {
-  focusElementProps: {
-    ref: RefObject<any>;
-  };
-  containerProps: {
-    ref: (el: any) => any;
-  };
   props: {
     ref: any; // TODO
   };
+  isFocusWithinContainer: boolean;
 }
 
 export const SelectionProvider = forwardRef<
@@ -75,13 +64,12 @@ export const SelectionProvider = forwardRef<
   ) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [selectableOrder, setSelectableOrder] = useState<string[]>([]);
-    const focusElementRef = useRef<HTMLElement>(null);
 
     const { current: selectableElements } = useRef<{
       [key: string]: HTMLElement;
     }>({});
     const rescan = useCallback(
-      (container: Element) => {
+      (container: HTMLElement) => {
         const newSelectableOrder: string[] = [];
         walkSubtree(container, el => {
           const key = getElementKey(el);
@@ -108,13 +96,15 @@ export const SelectionProvider = forwardRef<
     // static reference to a mutation observer
     const childObserverRef = useRef<MutationObserver | null>(
       new MutationObserver(mutations => {
-        rescan(mutations[0].target as Element);
+        rescan(mutations[0].target as HTMLElement);
       })
     );
-    const internalContainerRef = useRef<Element | null>(null);
+    const internalContainerRef = useRef<HTMLElement | null>(null);
     useEffect(() => {
       childObserverRef.current = new MutationObserver(() => {
-        rescan(internalContainerRef.current as Element);
+        if (internalContainerRef.current) {
+          rescan(internalContainerRef.current);
+        }
       });
       if (internalContainerRef.current) {
         childObserverRef.current.observe(internalContainerRef.current, {
@@ -127,13 +117,16 @@ export const SelectionProvider = forwardRef<
       };
     }, [rescan, internalContainerRef, observeDeep]);
 
+    const [isFocusWithinContainer, setIsFocusWithinContainer] = useState(false);
+
     const containerRef = useCallback(
-      (el: Element) => {
+      (el: HTMLElement) => {
         internalContainerRef.current = el;
         const { current: childObserver } = childObserverRef;
         if (el === null) {
           // clear any previous observation
           childObserver && childObserver.disconnect();
+          setIsFocusWithinContainer(false);
         } else {
           rescan(el); // do an initial scan
           childObserver &&
@@ -141,9 +134,15 @@ export const SelectionProvider = forwardRef<
               childList: true,
               subtree: observeDeep,
             });
+          el.addEventListener('focusin', () => {
+            setIsFocusWithinContainer(true);
+          });
+          el.addEventListener('focusout', () => {
+            setIsFocusWithinContainer(false);
+          });
         }
       },
-      [childObserverRef, observeDeep]
+      [childObserverRef, observeDeep, setIsFocusWithinContainer]
     );
 
     const findElementIndex = useCallback(
@@ -229,18 +228,11 @@ export const SelectionProvider = forwardRef<
       selectItem: (index = 0) => setSelectedIndex(index),
     }));
 
-    const combinedRef = useCombinedRefs(focusElementRef, containerRef);
-
     const renderProps = {
-      focusElementProps: {
-        ref: focusElementRef,
-      },
-      containerProps: {
+      props: {
         ref: containerRef,
       },
-      props: {
-        ref: combinedRef,
-      },
+      isFocusWithinContainer,
     };
 
     return (

@@ -6,14 +6,15 @@ import React, {
   useContext,
   useRef,
   useEffect,
-  ReactNode,
   forwardRef,
+  ElementType,
+  HTMLAttributes,
 } from 'react';
-import { useRefOrProvided } from '../utils';
+import { useCombinedRefs } from '../utils';
 
 export type FocusContextValue = {
   id: string | null;
-  register(elementId: string, elementRef: Ref<HTMLElement> | null): void;
+  register(elementId: string, elementRef: RefObject<HTMLElement>): void;
   unregister(elementId: string): void;
   focus(elementId: string): void;
 };
@@ -25,43 +26,44 @@ export const FocusContext = createContext<FocusContextValue>({
   focus: () => {},
 });
 
-export type FocusProviderRenderProps<T extends HTMLElement> = {
-  ref: Ref<T>;
-};
-
-export type FocusProviderProps<T extends HTMLElement> = {
+export type FocusProviderProps<P = HTMLAttributes<HTMLDivElement>> = {
   groupName?: string;
   ref?: Ref<HTMLElement>;
-  children(renderProps: FocusProviderRenderProps<T>): ReactNode;
   trapFocus?: boolean;
-};
+  component?: ElementType<P>;
+  onClose?: () => void;
+} & P;
 
-export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
-  ({ groupName, trapFocus, children, ...rest }, providedRef) => {
+export const FocusContainer = forwardRef<any, FocusProviderProps>(
+  (
+    {
+      groupName,
+      trapFocus,
+      children,
+      component: CustomComponent = 'div',
+      onClose,
+      ...rest
+    },
+    providedRef
+  ) => {
     const elementsRef = useRef<
       { id: string; ref: RefObject<HTMLElement> | null }[]
     >([]);
 
-    const ref = useRefOrProvided<HTMLElement>(providedRef);
+    const internalRef = useRef(null);
+    const ref = useCombinedRefs(internalRef, providedRef);
     const lastFocusedRef = useRef<HTMLElement | null>(null);
 
-    if (typeof ref === 'function') {
-      // FIXME
-      throw new Error('FocusProvider requires an object-style ref');
-    }
-
     useEffect(() => {
-      console.debug(`Registering focus provider`);
-      if (!ref || !trapFocus) {
-        console.debug(`Bailing: ${ref}, ${!trapFocus}`);
+      if (!internalRef || !trapFocus) {
         return;
       }
 
       const container =
-        ref.current || (typeof children !== 'function' ? document : null);
+        internalRef.current ||
+        (typeof children !== 'function' ? document : null);
 
       if (!container) {
-        console.warn(`No container element attached to FocusProvider`);
         return;
       }
 
@@ -70,16 +72,18 @@ export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
         const target = ev.target as HTMLElement;
         if (container.contains(target)) {
           lastFocusedRef.current = target;
-          console.debug(`Element ${target} is within container`);
           return;
         }
 
         const firstFocusable = elementsRef.current[0];
         const firstFocusableElement =
           firstFocusable && firstFocusable.ref && firstFocusable.ref.current;
-        console.debug(`first: `, firstFocusableElement);
+
+        // the previous focused element before this move was the first
+        // one inside the trap, which implies the user moved backward outside
+        // the trap, so we should move focus to wrap to the last item.
+        // TODO: consider case with only one item.
         if (lastFocusedRef.current === firstFocusableElement) {
-          console.debug(`Was on first element, wrapping to last`);
           const lastFocusable =
             elementsRef.current[elementsRef.current.length - 1];
           const lastFocusableElement =
@@ -89,19 +93,15 @@ export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
             lastFocusedRef.current = lastFocusableElement;
             ev.preventDefault();
           }
-        } else if (firstFocusableElement) {
-          console.debug(`Focusing first`);
-          firstFocusableElement.focus();
-          lastFocusedRef.current = firstFocusableElement;
-          ev.preventDefault();
         } else {
+          // this is covered using the focus sentinel
           return;
         }
       };
 
       document.addEventListener('focusin', trapFocusInside);
       return () => document.removeEventListener('focusin', trapFocusInside);
-    }, [ref && ref.current, trapFocus]);
+    }, [internalRef, trapFocus]);
 
     const register = useCallback(
       (elementId: string, elementRef: Ref<HTMLElement>) => {
@@ -117,7 +117,7 @@ export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
           { id: elementId, ref: elementRef },
         ];
       },
-      [elementsRef.current]
+      [elementsRef]
     );
 
     const unregister = useCallback(
@@ -126,7 +126,7 @@ export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
           ({ id }) => id !== elementId
         );
       },
-      [elementsRef.current]
+      [elementsRef]
     );
 
     const focus = useCallback(
@@ -135,26 +135,35 @@ export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
           ({ id }) => id === elementId
         );
         if (elementRef && elementRef.ref && elementRef.ref.current) {
-          console.debug('imperatively focusing ', elementRef.ref.current);
           elementRef.ref.current.focus();
         } else {
-          console.debug(
+          console.warn(
             `Tried to focus element ${elementId}, but it was not found in focus group${
               groupName ? ` "${groupName}"` : ''
-            }`
+            }. Focusable elements are: ${elementsRef.current
+              .map(({ id }) => id)
+              .join(', ')}`
           );
         }
       },
       [elementsRef]
     );
 
-    const renderProps = {
-      ref,
-    };
+    const onFocusSentinelFocus = useCallback(() => {
+      const activeFocusables = elementsRef.current.filter(({ ref }) => !!ref);
+      const firstFocusable = activeFocusables[0];
+      if (!firstFocusable || !firstFocusable.ref?.current) {
+        console.warn(
+          `Focus trap detected focus reached barrier, but no focusable elements are registered to move focus to`
+        );
+        return;
+      }
+
+      firstFocusable.ref?.current.focus();
+    }, [elementsRef]);
 
     return (
       <FocusContext.Provider
-        {...rest}
         value={{
           register,
           unregister,
@@ -162,7 +171,19 @@ export const FocusProvider = forwardRef<any, FocusProviderProps<any>>(
           id: groupName || null,
         }}
       >
-        {children(renderProps)}
+        {/*  multiline comment format required for prettier and ts to work in jsx.
+          this props signature is too complex for TS due to the overridable nature.
+        // @ts-ignore */ /* prettier-ignore */}
+        <CustomComponent ref={ref} {...rest}>
+          {children}
+          {trapFocus && (
+            <div
+              tabIndex={0}
+              className="interreactive-focus-trap-sentinel"
+              onFocus={onFocusSentinelFocus}
+            />
+          )}
+        </CustomComponent>
       </FocusContext.Provider>
     );
   }

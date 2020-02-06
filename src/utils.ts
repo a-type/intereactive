@@ -20,17 +20,14 @@ export const assignRef = <T>(ref: Ref<T>, el: T) => {
   }
 };
 
-export const useCombinedRefs = <T>(
-  refA: Ref<T> | undefined,
-  refB: Ref<T> | undefined
-) => {
-  const finalRef = useCallback(
-    (el: T) => {
-      refA && assignRef(refA, el);
-      refB && assignRef(refB, el);
-    },
-    [refA, refB]
-  );
+export const useCombinedRefs = <T>(...refs: (Ref<T> | undefined)[]) => {
+  const finalRef = useCallback((el: T) => {
+    refs.forEach(ref => {
+      if (ref) {
+        assignRef(ref, el);
+      }
+    });
+  }, refs);
   return finalRef;
 };
 
