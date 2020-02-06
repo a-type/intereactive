@@ -296,7 +296,7 @@ const App = () => {
           </Link>{' '}
           is the missing focus and selection manager for React. It enables
           complex tab control and keyboard selection interactions in your
-          widgets with a set of easy-to-use tools.
+          components with a set of easy-to-use tools.
         </p>
       </section>
       <section>
