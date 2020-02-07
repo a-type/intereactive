@@ -1,6 +1,8 @@
 # interreactive
 
-> The missing focus and selection manager for React
+![Logo image](media/logo.png)
+
+> The missing selection manager for React
 
 ## Getting Started
 
