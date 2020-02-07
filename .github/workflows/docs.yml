@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Docs
 
 on:
   push:
@@ -20,9 +20,9 @@ jobs:
       - run: mkdir docs
       - run: npm run docs
       - run: npm install
-        working-directory: example
+        working-directory: homepage
       - run: npm run build:gh
-        working-directory: example
+        working-directory: homepage
       - name: GitHub Pages
         uses: crazy-max/ghaction-github-pages@v1.2.5
         with:
