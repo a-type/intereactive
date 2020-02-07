@@ -1,5 +1,8 @@
-import { useIdOrGenerated } from '../utils';
-import { KEY_DATA_ATTRIBUTE, INDEX_DATA_ATTRIBUTE } from '../constants';
+import { useIdOrGenerated } from '../internal/utils';
+import {
+  KEY_DATA_ATTRIBUTE,
+  INDEX_DATA_ATTRIBUTE,
+} from '../internal/constants';
 import { useContext, useCallback } from 'react';
 import SelectionContext from '../contexts/selection';
 export type SelectionItemOptions = {

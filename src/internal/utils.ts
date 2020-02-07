@@ -142,7 +142,7 @@ export const useSelectableChildren = ({
   const { current: selectableElements } = useRef<{
     [key: string]: HTMLElement;
   }>({});
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectableOrder, setSelectableOrder] = useState<string[]>([]);
 
   const rescan = useCallback(
@@ -195,7 +195,7 @@ export const useSelectableChildren = ({
   }, [rescan, internalContainerRef, observeDeep]);
 
   const handleContainerElement = useCallback(
-    (el: HTMLElement) => {
+    (el: HTMLElement | null) => {
       internalContainerRef.current = el;
       const { current: childObserver } = childObserverRef;
       if (el === null) {

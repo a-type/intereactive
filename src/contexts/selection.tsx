@@ -1,19 +1,11 @@
-import React, {
-  createContext,
-  FC,
-  useState,
-  useCallback,
-  useEffect,
-  Ref,
-} from 'react';
-import { useSelectableChildren } from '../utils';
+import React, { createContext, FC, useCallback, useEffect, Ref } from 'react';
+import { useSelectableChildren } from '../internal/utils';
 
 export type SelectionContextValue = {
   onSelect: (value?: string) => any;
   goToNext: () => any;
   goToPrevious: () => any;
   selectedKey: string | null;
-  setIsOpen: (open: boolean) => any;
   containerRef: Ref<any>;
 };
 
@@ -22,41 +14,60 @@ const SelectionContext = createContext<SelectionContextValue>({
   goToNext: () => {},
   goToPrevious: () => {},
   selectedKey: null,
-  setIsOpen: () => {},
   containerRef: null,
 });
 
 export default SelectionContext;
 
-export interface SelectionContextProviderProps {
+export type SelectionProviderProps = {
+  /**
+   * Controls whether the selection should jump back to the first element when
+   * the user reaches the last element.
+   */
   noWrap?: boolean;
-  observeDeep?: boolean;
+  /**
+   * This is a performance optimization. If all the selectable items are direct
+   * DOM descendants of the container element, you can enable "shallow" mode to
+   * reduce the overhead of scanning the DOM for items.
+   */
+  shallow?: boolean;
+  /**
+   * If you are using virtualized items, you must provide the total number
+   * of items here to ensure selection works as expected.
+   */
   itemCount?: number;
+  /**
+   * Optionally provide a controlled value to the Selection system. The provided
+   * value will be selected by default.
+   */
   value?: string | null;
+  /**
+   * When the user selects an item, its provided value will be passed to this
+   * callback.
+   */
   onChange: (value: string) => any;
-  children: (props: SelectionContextProviderRenderProps) => JSX.Element;
-  closeOnSelect?: boolean;
-}
+};
 
-export interface SelectionContextProviderRenderProps {
-  isOpen: boolean;
-}
+/**
+ * Creates a Selection system, which allows attaching interaction handlers to a
+ * focusable item (like an `<input>`) which control the selection state of a
+ * disconnected set of elements. Used for things like autocomplete inputs.
+ */
+export const SelectionProvider: FC<SelectionProviderProps> = props => {
+  const {
+    noWrap,
+    children,
+    onChange,
+    shallow,
+    itemCount,
+    value,
+    ...rest
+  } = props;
 
-export const SelectionProvider: FC<SelectionContextProviderProps> = ({
-  noWrap,
-  children,
-  onChange,
-  observeDeep,
-  itemCount,
-  value,
-  closeOnSelect,
-  ...rest
-}) => {
   // a selection provider acts kind of like a roving tab system, except the
   // items themselves don't get focus. The focus remains on a single element
   // (like an input for an autocomplete), which also handles keyboard interaction.
   // changes in state from that interaction are reflected in the items visually
-
   const {
     setSelectedIndex,
     goToNext,
@@ -64,13 +75,11 @@ export const SelectionProvider: FC<SelectionContextProviderProps> = ({
     findElementIndex,
     selectedKey,
     handleContainerElement,
-    selectedIndex,
   } = useSelectableChildren({
-    observeDeep,
+    observeDeep: !shallow,
     itemCount,
   });
 
-  const [isOpen, setIsOpen] = useState(false);
   const containerRef = useCallback(
     (el: HTMLElement) => {
       handleContainerElement(el);
@@ -88,15 +97,11 @@ export const SelectionProvider: FC<SelectionContextProviderProps> = ({
   const onSelect = useCallback(
     (value?: string) => {
       onChange(value || selectedKey);
-      if (closeOnSelect) {
-        setIsOpen(false);
-      }
     },
-    [selectedKey, onChange, closeOnSelect, setIsOpen]
+    [selectedKey, onChange]
   );
 
   const contextValue: SelectionContextValue = {
-    setIsOpen,
     selectedKey,
     goToNext,
     goToPrevious,
@@ -104,15 +109,9 @@ export const SelectionProvider: FC<SelectionContextProviderProps> = ({
     containerRef,
   };
 
-  const renderProps = {
-    isOpen,
-  };
-
-  console.debug(selectedKey, selectedIndex);
-
   return (
     <SelectionContext.Provider value={contextValue} {...rest}>
-      {children(renderProps)}
+      {children}
     </SelectionContext.Provider>
   );
 };

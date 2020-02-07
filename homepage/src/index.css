@@ -21,6 +21,14 @@
     transparent 40%,
     var(--bg-active-color) 100%
   );
+  --bg-scanlines: repeating-linear-gradient(
+      0deg,
+      var(--scanline-color),
+      var(--scanline-color) 2px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(circle, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
 }
 
 html {
@@ -30,14 +38,7 @@ html {
 body {
   margin: 0;
   background-color: var(--bg-color-1);
-  background: repeating-linear-gradient(
-      0deg,
-      var(--scanline-color),
-      var(--scanline-color) 2px,
-      transparent 2px,
-      transparent 4px
-    ),
-    radial-gradient(circle, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
+  background: var(--bg-scanlines);
   background-attachment: fixed;
   color: var(--fg-color);
   font-family: 'Roboto Mono', monospace;
@@ -47,6 +48,7 @@ body {
   font-weight: 300;
   padding-left: 16px;
   padding-right: 16px;
+  line-height: 1.5;
 }
 
 * {
@@ -150,10 +152,6 @@ section {
   flex-direction: column;
 }
 
-.subfocus-active {
-  background: var(--gradient-neutral);
-}
-
 .card {
   padding: 30px;
   border-radius: 12px;
@@ -162,6 +160,18 @@ section {
   margin: auto;
   display: flex;
   flex-direction: column;
+}
+.card:focus-within {
+  background: var(--gradient-neutral);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-scanlines);
+  box-shadow: 0 0 400px 400px #000000a0;
 }
 
 .row {

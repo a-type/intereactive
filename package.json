@@ -18,7 +18,8 @@
     "build:cjs": "tsc",
     "build:esm": "tsc -m es6 --outDir dist-esm",
     "build": "run-s build:*",
-    "test": "echo \"No tests\""
+    "test": "echo \"No tests\"",
+    "docs": "typedoc --options typedoc.json"
   },
   "peerDependencies": {
     "react": ">=16"

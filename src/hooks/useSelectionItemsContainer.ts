@@ -1,14 +1,15 @@
 import { useContext, Ref } from 'react';
 import SelectionContext from '../contexts/selection';
-import { useCombinedRefs } from '../utils';
+import { useCombinedRefs } from '../internal/utils';
 
-export type UseSelectionOptionsContainerOptions = {
+export type UseSelectionItemsContainerOptions = {
   ref?: Ref<any>;
 };
 
-export const useSelectionOptionsContainer = ({
-  ref,
-}: UseSelectionOptionsContainerOptions) => {
+export const useSelectionItemsContainer = (
+  options: UseSelectionItemsContainerOptions
+) => {
+  const { ref } = options;
   const { containerRef } = useContext(SelectionContext);
   const combinedRef = useCombinedRefs(containerRef, ref);
 
