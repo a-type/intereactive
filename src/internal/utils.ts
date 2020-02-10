@@ -11,7 +11,12 @@ import {
   useMemo,
 } from 'react';
 import { KeyCode } from './types';
-import { KEY_DATA_ATTRIBUTE, INDEX_DATA_ATTRIBUTE } from './constants';
+import {
+  KEY_DATA_ATTRIBUTE,
+  INDEX_DATA_ATTRIBUTE,
+  PARENT_CONTAINER_ATTRIBUTE,
+} from './constants';
+import { KeyActions, MovementAction } from '../keyActions';
 
 export const generateId = (base?: string): string => {
   return `${base || 'generated'}-${Math.floor(Math.random() * 100000000)}`;
@@ -83,29 +88,18 @@ export const getPreviousIndex = (
   return length + (currentIndex - 1);
 };
 
-export const getMovementKeys = (axis: 'horizontal' | 'vertical' | 'both') => {
-  switch (axis) {
-    case 'horizontal':
-      return {
-        next: [KeyCode.ArrowRight],
-        previous: [KeyCode.ArrowLeft],
-        nextSibling: [KeyCode.ArrowDown],
-        previousSibling: [KeyCode.ArrowUp],
-      };
-    case 'vertical':
-      return {
-        next: [KeyCode.ArrowDown],
-        previous: [KeyCode.ArrowUp],
-        nextSibling: [KeyCode.ArrowRight],
-        previousSibling: [KeyCode.ArrowLeft],
-      };
-    case 'both':
-      return {
-        next: [KeyCode.ArrowDown, KeyCode.ArrowRight],
-        previous: [KeyCode.ArrowUp, KeyCode.ArrowLeft],
-        nextSibling: [],
-        previousSibling: [],
-      };
+export const getMovementAction = (keyActions: KeyActions, keyCode: KeyCode) => {
+  switch (keyCode) {
+    case KeyCode.ArrowUp:
+      return keyActions.up;
+    case KeyCode.ArrowDown:
+      return keyActions.down;
+    case KeyCode.ArrowLeft:
+      return keyActions.left;
+    case KeyCode.ArrowRight:
+      return keyActions.right;
+    default:
+      return MovementAction.DoNothing;
   }
 };
 
@@ -166,7 +160,9 @@ export const useSelectableChildren = ({
         itemCount || newSelectableOrder.length,
         selectedIndex
       );
-      setSelectedIndex(newSelectedIndex);
+      setSelectedIndex(currentSelectedIndex =>
+        currentSelectedIndex === -1 ? -1 : newSelectedIndex
+      );
     },
     [selectedIndex, itemCount]
   );
@@ -246,7 +242,7 @@ export const useSelectableChildren = ({
   // lookup the selected item key based on the index
   const selectedKey = useMemo(() => {
     const key = selectableOrder[selectedIndex];
-    return key || selectableOrder[0];
+    return key || null;
   }, [selectableOrder, selectedIndex]);
 
   return {

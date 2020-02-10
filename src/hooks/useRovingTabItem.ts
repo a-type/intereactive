@@ -5,17 +5,19 @@ import {
   MutableRefObject,
   useCallback,
   KeyboardEvent,
+  useEffect,
 } from 'react';
 import RovingTabContext from '../contexts/rovingTab';
 import { KeyCode } from '../internal/types';
-import { getMovementKeys } from '../internal/utils';
+import { getMovementAction } from '../internal/utils';
+import { KeyActions, keyActionPresets, MovementAction } from '../keyActions';
 import {
   KEY_DATA_ATTRIBUTE,
   VALUE_DATA_ATTRIBUTE,
   INDEX_DATA_ATTRIBUTE,
 } from '../internal/constants';
 
-export type UseRovingTabItemOptions = {
+export type UseRovingTabItemOptions<T extends HTMLElement = any> = {
   /**
    * Optionally supply a value represented by this
    * item. This value will be reported by the RovingTabProvider if the user selects the
@@ -27,7 +29,7 @@ export type UseRovingTabItemOptions = {
    * which will accept the props returned by this hook, pass it in here and it will
    * be merged with the hook's ref for you.
    */
-  ref?: Ref<any>;
+  ref?: Ref<T>;
   /**
    * For advanced use cases like virtualization, you can manually
    * specify the ordering of this item. If omitted, order will be inferred by DOM
@@ -37,9 +39,9 @@ export type UseRovingTabItemOptions = {
   /**
    * Determines the keyboard arrow directions which can be used
    * to move from this item to next or previous items. By default the user can use
-   * up or left to go back, and down or right to go forward.
+   * up or left to go back, and down or right to go forward (flat.any preset)
    */
-  axis?: 'vertical' | 'horizontal' | 'both';
+  keyActions?: KeyActions;
 };
 
 /**
@@ -48,17 +50,26 @@ export type UseRovingTabItemOptions = {
  *
  * @category Roving Tab
  */
-export const useRovingTabItem = (options: UseRovingTabItemOptions = {}) => {
-  const { value, ref, index, axis = 'both' } = options;
-  const { onSelect, goToNext, goToPrevious, selectedKey } = useContext(
-    RovingTabContext
-  );
+export const useRovingTabItem = <T extends HTMLElement>(
+  options: UseRovingTabItemOptions<T> = {}
+) => {
+  const { value, ref, index, keyActions = keyActionPresets.flat.any } = options;
+  const {
+    onSelect,
+    goToNext,
+    goToPrevious,
+    selectedKey,
+    goUp,
+    goDown,
+    selectedIndex,
+    getIndex,
+  } = useContext(RovingTabContext);
   const { current: key } = useRef(
     value || `suggestion-${Math.floor(Math.random() * 10000000000)}`
   );
-  const elementRef = useRef<HTMLElement | null>(null);
+  const elementRef = useRef<T | null>(null);
   const combinedRef = useCallback(
-    (el: HTMLElement) => {
+    (el: T) => {
       elementRef.current = el;
       if (typeof ref === 'function') {
         ref(el);
@@ -71,36 +82,65 @@ export const useRovingTabItem = (options: UseRovingTabItemOptions = {}) => {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<any>) => {
-      const movementKeys = getMovementKeys(axis);
+      const action = getMovementAction(keyActions, event.keyCode);
 
-      if (movementKeys.next.includes(event.keyCode)) {
+      if (action === MovementAction.GoNext) {
         goToNext(key);
         event.preventDefault();
-      } else if (movementKeys.previous.includes(event.keyCode)) {
+        event.stopPropagation();
+      } else if (action === MovementAction.GoPrevious) {
         goToPrevious(key);
         event.preventDefault();
+        event.stopPropagation();
+      } else if (action === MovementAction.GoUp) {
+        goUp();
+        event.preventDefault();
+        event.stopPropagation();
+      } else if (action === MovementAction.GoDown) {
+        goDown();
+        event.preventDefault();
+        event.stopPropagation();
       } else if (event.keyCode === KeyCode.Enter) {
         onSelect(key, value);
         event.preventDefault();
+        event.stopPropagation();
       }
     },
-    [onSelect, key, value, goToNext, goToPrevious]
+    [onSelect, key, value, goToNext, goToPrevious, keyActions]
   );
 
   const handleClick = useCallback(() => {
     onSelect(key, value);
   }, [onSelect, key, value]);
 
+  const handleFocus = useCallback(() => {
+    onSelect(key, value);
+  }, [onSelect, key, value]);
+
+  const isSelected = selectedKey === key;
+  const isTabbable =
+    selectedIndex === -1 ? getIndex(key) === 0 : selectedKey === key;
+
+  useEffect(() => {
+    if (isSelected) {
+      console.debug(`${key} is selected`);
+      elementRef.current?.focus();
+    } else {
+      console.debug(`${key} is unselected, ${selectedKey} is selected`);
+    }
+  }, [isSelected, elementRef]);
+
   return {
     props: {
       ref: combinedRef,
       onKeyDown: handleKeyDown,
       onClick: handleClick,
+      onFocus: handleFocus,
       [KEY_DATA_ATTRIBUTE]: key,
       [VALUE_DATA_ATTRIBUTE]: value,
       [INDEX_DATA_ATTRIBUTE]: index,
-      tabIndex: selectedKey === key ? 0 : -1,
+      tabIndex: isTabbable ? 0 : -1,
     },
-    selected: selectedKey === key,
+    selected: isSelected,
   };
 };
