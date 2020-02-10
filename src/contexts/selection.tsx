@@ -78,6 +78,7 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
   } = useSelectableChildren({
     observeDeep: !shallow,
     itemCount,
+    flatten: true,
   });
 
   const containerRef = useCallback(

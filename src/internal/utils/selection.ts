@@ -31,8 +31,10 @@ export const discoverOrderingStructure = (
   parentIndex: DeepIndex,
   {
     crossContainerBoundaries,
+    flatten,
   }: {
     crossContainerBoundaries?: boolean;
+    flatten?: boolean;
   } = {}
 ): void => {
   // parent ordering node represents the root node.
@@ -62,15 +64,25 @@ export const discoverOrderingStructure = (
         element: node,
         index: childIndex,
       };
-      // if so, start a new level of the tree and
-      // continue discovery with the new reference point
+
+      // depending on flattening behavior, we either:
+      // true -> add this child to the parent's children, continue deeper
+      //         while keeping parent as the reference point
+      // false -> add this child to the parent's children, continue deeper
+      //         using this child as the reference point
       const newOrderingNode = {
         key,
         children: [],
       };
-      discoverOrderingStructure(newOrderingNode, elementMap, node, childIndex, {
-        crossContainerBoundaries,
-      });
+      discoverOrderingStructure(
+        flatten ? parent : newOrderingNode,
+        elementMap,
+        node,
+        childIndex,
+        {
+          crossContainerBoundaries,
+        }
+      );
 
       // mutating to reduce memory copying...
       parent.children.push(newOrderingNode);
@@ -91,6 +103,7 @@ export const useSelectableChildren = ({
   crossContainerBoundaries,
   initialSelectedIndex = [0],
   onSelect,
+  flatten,
 }: {
   observeDeep?: boolean;
   itemCount?: number;
@@ -102,6 +115,7 @@ export const useSelectableChildren = ({
     key: string,
     index: DeepIndex
   ) => void;
+  flatten?: boolean;
 } = {}) => {
   const elementKeyMapRef = useRef<ElementMap>({});
   const [selectionDeepIndex, setSelectionDeepIndex] = useState<DeepIndex>(
@@ -122,6 +136,7 @@ export const useSelectableChildren = ({
 
       discoverOrderingStructure(newOrdering, newElementMap, container, [], {
         crossContainerBoundaries,
+        flatten,
       });
 
       setDeepOrderingTree(newOrdering);
