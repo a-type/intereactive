@@ -38,7 +38,7 @@ export const discoverOrderingStructure = (
 ): void => {
   // parent ordering node represents the root node.
   // assume root node has already been processed.
-  Array.from(root.childNodes).forEach(node => {
+  root.childNodes.forEach(node => {
     // bail if text node or other non-html node
     if (!isHtmlElement(node)) {
       return;
@@ -64,32 +64,42 @@ export const discoverOrderingStructure = (
         index: childIndex,
       };
 
-      // depending on flattening behavior, we either:
-      // true -> add this child to the parent's children, continue deeper
-      //         while keeping parent as the reference point
-      // false -> add this child to the parent's children, continue deeper
-      //         using this child as the reference point
       const newOrderingNode = {
         key,
         children: [],
       };
-      discoverOrderingStructure(
-        flatten ? parent : newOrderingNode,
-        elementMap,
-        node,
-        childIndex,
-        {
-          crossContainerBoundaries,
-        }
-      );
 
-      // mutating to reduce memory copying...
-      parent.children.push(newOrderingNode);
+      // depending on flattening behavior, we either:
+      // true -> add this child to the parent's children, THEN continue deeper
+      //         while keeping parent as the reference point
+      // false -> continue deeper using this child as the reference point,
+      //          THEN add this child to the parent's children
+
+      if (flatten) {
+        parent.children.push(newOrderingNode);
+        discoverOrderingStructure(parent, elementMap, node, parentIndex, {
+          crossContainerBoundaries,
+          flatten,
+        });
+      } else {
+        discoverOrderingStructure(
+          newOrderingNode,
+          elementMap,
+          node,
+          childIndex,
+          {
+            crossContainerBoundaries,
+            flatten,
+          }
+        );
+        parent.children.push(newOrderingNode);
+      }
     } else {
       // if not, continue traversing downward...
       // kind of a 'skip level'
       discoverOrderingStructure(parent, elementMap, node, parentIndex, {
         crossContainerBoundaries,
+        flatten,
       });
     }
   });
