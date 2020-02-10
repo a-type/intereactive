@@ -2,8 +2,7 @@ import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import {
   getClosestValidDeepIndex,
   resolveIndexLocation,
-  getNextDeepIndex,
-  getPreviousDeepIndex,
+  getOffsetDeepIndex,
   getUpwardDeepIndex,
   getDownwardDeepIndex,
 } from './indexing';
@@ -274,12 +273,14 @@ export const useSelectableChildren = ({
       : Object.keys(elementKeyMapRef.current || {}).length;
 
   const goToNext = useCallback(() => {
-    setSelection(current => getNextDeepIndex(current, deepOrderingTree, wrap));
+    setSelection(current =>
+      getOffsetDeepIndex(current, deepOrderingTree, 1, wrap)
+    );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToPrevious = useCallback(() => {
     setSelection(current =>
-      getPreviousDeepIndex(current, deepOrderingTree, wrap)
+      getOffsetDeepIndex(current, deepOrderingTree, -1, wrap)
     );
   }, [setSelection, deepOrderingTree, wrap]);
 

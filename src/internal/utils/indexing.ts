@@ -1,30 +1,24 @@
 import { DeepOrderingNode, DeepIndex } from './types';
-export const getNextIndex = (
-  currentIndex: number,
-  length: number,
-  wrap?: boolean
-) => {
-  if (currentIndex + 1 < length) {
-    return currentIndex + 1;
-  }
-  if (!wrap) {
-    return length - 1;
-  }
-  return currentIndex + 1 - length;
-};
 
-export const getPreviousIndex = (
+export const getOffsetIndex = (
   currentIndex: number,
   length: number,
+  offset: number,
   wrap?: boolean
 ) => {
-  if (currentIndex > 0) {
-    return currentIndex - 1;
-  }
+  let prospectiveNewIndex = currentIndex + offset;
   if (!wrap) {
-    return 0;
+    // clamp the value to available
+    return Math.max(0, Math.min(length - 1, prospectiveNewIndex));
   }
-  return length + (currentIndex - 1);
+  if (prospectiveNewIndex < 0) {
+    prospectiveNewIndex += length;
+  }
+  while (prospectiveNewIndex >= length) {
+    prospectiveNewIndex -= length;
+  }
+
+  return prospectiveNewIndex;
 };
 
 export const resolveIndexLocation = (
@@ -45,37 +39,18 @@ export const resolveIndexLocation = (
  * sibling elements, it will move to the next one (with or without wrap).
  * If there's only 1, it won't do anything.
  */
-export const getNextDeepIndex = (
+export const getOffsetDeepIndex = (
   currentIndex: DeepIndex,
   ordering: DeepOrderingNode,
+  offset: 1 | -1, // only single jumps are currently supported due to complex structure
   wrap?: boolean
 ): DeepIndex => {
   const prefixIndices = getUpwardDeepIndex(currentIndex);
   const parent = resolveIndexLocation(ordering, prefixIndices);
-  const operantIndexValue = getNextIndex(
+  const operantIndexValue = getOffsetIndex(
     currentIndex[currentIndex.length - 1],
     parent.children.length,
-    wrap
-  );
-  return [...prefixIndices, operantIndexValue];
-};
-
-/**
- * Cycles a deep index to the previous sibling. It's not possible to "escape"
- * a sibling group with a horizontal move like this. If there are a couple
- * sibling elements, it will move to the previous one (with or without wrap).
- * If there's only 1, it won't do anything.
- */
-export const getPreviousDeepIndex = (
-  currentIndex: DeepIndex,
-  ordering: DeepOrderingNode,
-  wrap?: boolean
-): DeepIndex => {
-  const prefixIndices = getUpwardDeepIndex(currentIndex);
-  const parent = resolveIndexLocation(ordering, prefixIndices);
-  const operantIndexValue = getPreviousIndex(
-    currentIndex[currentIndex.length - 1],
-    parent.children.length,
+    offset,
     wrap
   );
   return [...prefixIndices, operantIndexValue];
@@ -83,7 +58,8 @@ export const getPreviousDeepIndex = (
 
 /**
  * A simple upward traversal, selecting the previously selected parent
- * index
+ * index. It is assumed that your index is valid within your nested
+ * structure.
  */
 export const getUpwardDeepIndex = (currentIndex: DeepIndex): DeepIndex => {
   return currentIndex.slice(0, currentIndex.length - 1);
@@ -123,6 +99,8 @@ export const getClosestValidDeepIndex = (
     } else {
       // otherwise, try to get close to the provided position,
       // but stop at the end of the children list.
-      return rebuiltIndex.concat(Math.min(level.children.length, nextPosition));
+      return rebuiltIndex.concat(
+        Math.min(level.children.length - 1, nextPosition)
+      );
     }
   }, []);
