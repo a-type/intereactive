@@ -8,7 +8,9 @@ import {
 } from 'react';
 import SelectionContext from '../contexts/selection';
 import { KeyCode } from '../internal/types';
-import { getMovementKeys, useCombinedRefs } from '../internal/utils';
+import { keyActionPresets, MovementAction } from '../keyActions';
+import { useCombinedRefs } from '../internal/utils/refs';
+import { getMovementAction } from '../internal/utils/movement';
 
 export type UseSelectionFocusElementOptions = {
   /**
@@ -54,11 +56,11 @@ export const useSelectionFocusElement = (
 
   const handleKeyDown = useCallback(
     (ev: KeyboardEvent) => {
-      const movementKeys = getMovementKeys('vertical'); // TODO: configurable axis
-      if (movementKeys.next.includes(ev.keyCode)) {
+      const action = getMovementAction(keyActionPresets.flat.any, ev.keyCode); // TODO: configurable axis
+      if (action === MovementAction.GoNext) {
         goToNext();
         ev.preventDefault();
-      } else if (movementKeys.previous.includes(ev.keyCode)) {
+      } else if (action === MovementAction.GoPrevious) {
         goToPrevious();
         ev.preventDefault();
       } else if (ev.keyCode === KeyCode.Enter) {

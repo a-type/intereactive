@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Select } from './Select';
 import { RovingTab } from './RovingTab';
+import TreeDemo from './Tree';
 
 const App = () => {
   return (
@@ -44,6 +45,14 @@ const App = () => {
       <section>
         <h2>"roving tab index"</h2>
         <RovingTab />
+      </section>
+      <section>
+        <h2>tree</h2>
+        <p>
+          Using the flexible tools provided, you can create complex selection
+          interaction, like tree views.
+        </p>
+        <TreeDemo />
       </section>
       <section>
         <a href="https://a-type.github.io/interreactive/lib">
