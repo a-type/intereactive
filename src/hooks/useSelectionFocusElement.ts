@@ -8,8 +8,9 @@ import {
 } from 'react';
 import SelectionContext from '../contexts/selection';
 import { KeyCode } from '../internal/types';
-import { getMovementAction, useCombinedRefs } from '../internal/utils';
 import { keyActionPresets, MovementAction } from '../keyActions';
+import { useCombinedRefs } from '../internal/utils/refs';
+import { getMovementAction } from '../internal/utils/movement';
 
 export type UseSelectionFocusElementOptions = {
   /**

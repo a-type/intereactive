@@ -22,21 +22,19 @@ const TreeItem = React.forwardRef<HTMLLIElement, TreeItemProps>(
     return (
       <li {...rest} {...rovingTabProps}>
         <div className={selected ? 'tree-label-selected' : ''}>{label}</div>
-        {children && (
-          <RovingTabContainer>
-            <ul>{children}</ul>
-          </RovingTabContainer>
-        )}
+        {children && <ul>{children}</ul>}
       </li>
     );
   }
 );
 
-type TreeProps = {};
+type TreeProps = {
+  id?: string;
+};
 
-const Tree: React.FC<TreeProps> = ({ children }) => {
+const Tree: React.FC<TreeProps> = ({ children, id }) => {
   return (
-    <RovingTabContainer>
+    <RovingTabContainer id={id}>
       <ul>{children}</ul>
     </RovingTabContainer>
   );
@@ -44,7 +42,7 @@ const Tree: React.FC<TreeProps> = ({ children }) => {
 
 const TreeDemo: React.FC = () => {
   return (
-    <Tree>
+    <Tree id="tree-demo">
       <TreeItem value="one" label="One" />
       <TreeItem value="two" label="Two">
         <TreeItem value="two-a" label="Two A" />

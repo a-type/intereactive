@@ -18,7 +18,7 @@
     "build:cjs": "tsc",
     "build:esm": "tsc -m es6 --outDir dist-esm",
     "build": "run-s build:*",
-    "test": "echo \"No tests\"",
+    "test": "jest",
     "docs": "typedoc --options typedoc.json"
   },
   "peerDependencies": {
@@ -36,10 +36,14 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/preset-typescript": "^7.8.3",
     "@types/jest": "^24.0.12",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
     "husky": "^2.2.0",
+    "jest": "^25.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
     "pretty-quick": "^1.10.0",

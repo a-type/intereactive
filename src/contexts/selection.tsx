@@ -1,5 +1,5 @@
 import React, { createContext, FC, useCallback, useEffect, Ref } from 'react';
-import { useSelectableChildren } from '../internal/utils';
+import { useSelectableChildren } from '../internal/utils/selection';
 
 export type SelectionContextValue = {
   onSelect: (value?: string) => any;
@@ -69,7 +69,7 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
   // (like an input for an autocomplete), which also handles keyboard interaction.
   // changes in state from that interaction are reflected in the items visually
   const {
-    setSelectedIndex,
+    setSelectionDeepIndex,
     goToNext,
     goToPrevious,
     findElementIndex,
@@ -89,14 +89,16 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
 
   // when the controlled value changes, update the selected index to match
   useEffect(() => {
-    const idx = value ? findElementIndex(value) : 0;
-    setSelectedIndex(idx);
-  }, [value, findElementIndex]);
+    const idx = value ? findElementIndex(value) : [0];
+    setSelectionDeepIndex(idx);
+  }, [value, findElementIndex, setSelectionDeepIndex]);
 
   /** either selects the provided value, or the current chosen value */
   const onSelect = useCallback(
     (value?: string) => {
-      onChange(value || selectedKey);
+      const resolvedValue = value || selectedKey;
+      // TODO: check this code
+      resolvedValue && onChange(resolvedValue);
     },
     [selectedKey, onChange]
   );

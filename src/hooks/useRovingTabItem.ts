@@ -5,11 +5,10 @@ import {
   MutableRefObject,
   useCallback,
   KeyboardEvent,
-  useEffect,
 } from 'react';
 import RovingTabContext from '../contexts/rovingTab';
 import { KeyCode } from '../internal/types';
-import { getMovementAction } from '../internal/utils';
+import { getMovementAction } from '../internal/utils/movement';
 import { KeyActions, keyActionPresets, MovementAction } from '../keyActions';
 import {
   KEY_DATA_ATTRIBUTE,
@@ -61,8 +60,6 @@ export const useRovingTabItem = <T extends HTMLElement>(
     selectedKey,
     goUp,
     goDown,
-    selectedIndex,
-    getIndex,
   } = useContext(RovingTabContext);
   const { current: key } = useRef(
     value || `suggestion-${Math.floor(Math.random() * 10000000000)}`
@@ -113,29 +110,19 @@ export const useRovingTabItem = <T extends HTMLElement>(
     onSelect(key, value);
   }, [onSelect, key, value]);
 
-  const handleFocus = useCallback(() => {
-    onSelect(key, value);
-  }, [onSelect, key, value]);
+  // const handleFocus = useCallback(() => {
+  //   onSelect(key, value);
+  // }, [onSelect, key, value]);
 
   const isSelected = selectedKey === key;
-  const isTabbable =
-    selectedIndex === -1 ? getIndex(key) === 0 : selectedKey === key;
-
-  useEffect(() => {
-    if (isSelected) {
-      console.debug(`${key} is selected`);
-      elementRef.current?.focus();
-    } else {
-      console.debug(`${key} is unselected, ${selectedKey} is selected`);
-    }
-  }, [isSelected, elementRef]);
+  const isTabbable = isSelected;
 
   return {
     props: {
       ref: combinedRef,
       onKeyDown: handleKeyDown,
       onClick: handleClick,
-      onFocus: handleFocus,
+      //onFocus: handleFocus,
       [KEY_DATA_ATTRIBUTE]: key,
       [VALUE_DATA_ATTRIBUTE]: value,
       [INDEX_DATA_ATTRIBUTE]: index,
