@@ -7,9 +7,8 @@ import {
   KeyboardEvent,
 } from 'react';
 import RovingTabContext from '../contexts/rovingTab';
-import { KeyCode } from '../internal/types';
-import { getMovementAction } from '../internal/utils/movement';
-import { KeyActions, keyActionPresets, MovementAction } from '../keyActions';
+import { getKeyboardAction } from '../internal/utils/keyboard';
+import { KeyActions, keyActionPresets, Action } from '../keyActions';
 import { normalizeCoordinate } from '../internal/utils/indexing';
 import {
   KEY_DATA_ATTRIBUTE,
@@ -87,33 +86,33 @@ export const useRovingTabItem = <T extends HTMLElement>(
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<any>) => {
-      const action = getMovementAction(keyActions, event.keyCode);
+      const action = getKeyboardAction(keyActions, event.keyCode);
 
-      if (action === MovementAction.GoNext) {
+      if (action === Action.GoNext) {
         goToNext();
         event.preventDefault();
         event.stopPropagation();
-      } else if (action === MovementAction.GoPrevious) {
+      } else if (action === Action.GoPrevious) {
         goToPrevious();
         event.preventDefault();
         event.stopPropagation();
-      } else if (action === MovementAction.GoUp) {
+      } else if (action === Action.GoUp) {
         goUp();
         event.preventDefault();
         event.stopPropagation();
-      } else if (action === MovementAction.GoDown) {
+      } else if (action === Action.GoDown) {
         goDown();
         event.preventDefault();
         event.stopPropagation();
-      } else if (action === MovementAction.GoNextOrthogonal) {
+      } else if (action === Action.GoNextOrthogonal) {
         goToNextOrthogonal();
         event.preventDefault();
         event.stopPropagation();
-      } else if (action === MovementAction.GoPreviousOrthogonal) {
+      } else if (action === Action.GoPreviousOrthogonal) {
         goToPreviousOrthogonal();
         event.preventDefault();
         event.stopPropagation();
-      } else if (event.keyCode === KeyCode.Enter) {
+      } else if (action === Action.Select) {
         onSelect(key, value);
         event.preventDefault();
         event.stopPropagation();

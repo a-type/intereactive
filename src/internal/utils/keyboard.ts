@@ -1,7 +1,7 @@
-import { KeyActions, MovementAction } from '../../keyActions';
+import { KeyActions, Action } from '../../keyActions';
 import { KeyCode } from '../types';
 
-export const getMovementAction = (keyActions: KeyActions, keyCode: KeyCode) => {
+export const getKeyboardAction = (keyActions: KeyActions, keyCode: KeyCode) => {
   switch (keyCode) {
     case KeyCode.ArrowUp:
       return keyActions.up;
@@ -11,7 +11,11 @@ export const getMovementAction = (keyActions: KeyActions, keyCode: KeyCode) => {
       return keyActions.left;
     case KeyCode.ArrowRight:
       return keyActions.right;
+    case KeyCode.Enter:
+      return keyActions.enter;
+    case KeyCode.Space:
+      return keyActions.space;
     default:
-      return MovementAction.DoNothing;
+      return Action.DoNothing;
   }
 };

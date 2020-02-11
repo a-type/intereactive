@@ -1,18 +1,22 @@
-export enum MovementAction {
+export enum Action {
   GoNext,
   GoPrevious,
   GoUp,
   GoDown,
   GoNextOrthogonal,
   GoPreviousOrthogonal,
+  Select,
   DoNothing,
 }
 
 export type KeyActions = {
-  up: MovementAction;
-  down: MovementAction;
-  left: MovementAction;
-  right: MovementAction;
+  up: Action;
+  down: Action;
+  left: Action;
+  right: Action;
+  enter: Action;
+  space: Action;
+  escape: Action;
 };
 
 export const keyActionPresets: {
@@ -29,53 +33,98 @@ export const keyActionPresets: {
     horizontal: KeyActions;
     vertical: KeyActions;
   };
+  threeDimensional: {
+    horizontal: KeyActions;
+    vertical: KeyActions;
+  };
 } = {
   hierarchical: {
     horizontal: {
-      up: MovementAction.GoUp,
-      down: MovementAction.GoDown,
-      left: MovementAction.GoPrevious,
-      right: MovementAction.GoNext,
+      up: Action.GoUp,
+      down: Action.GoDown,
+      left: Action.GoPrevious,
+      right: Action.GoNext,
+      enter: Action.Select,
+      space: Action.Select,
+      escape: Action.DoNothing,
     },
     vertical: {
-      up: MovementAction.GoPrevious,
-      down: MovementAction.GoNext,
-      left: MovementAction.GoUp,
-      right: MovementAction.GoDown,
+      up: Action.GoPrevious,
+      down: Action.GoNext,
+      left: Action.GoUp,
+      right: Action.GoDown,
+      enter: Action.Select,
+      space: Action.Select,
+      escape: Action.DoNothing,
     },
   },
   flat: {
     horizontal: {
-      up: MovementAction.DoNothing,
-      down: MovementAction.DoNothing,
-      left: MovementAction.GoPrevious,
-      right: MovementAction.GoNext,
+      up: Action.DoNothing,
+      down: Action.DoNothing,
+      left: Action.GoPrevious,
+      right: Action.GoNext,
+      enter: Action.Select,
+      space: Action.Select,
+      escape: Action.DoNothing,
     },
     vertical: {
-      up: MovementAction.GoPrevious,
-      down: MovementAction.GoNext,
-      left: MovementAction.DoNothing,
-      right: MovementAction.DoNothing,
+      up: Action.GoPrevious,
+      down: Action.GoNext,
+      left: Action.DoNothing,
+      right: Action.DoNothing,
+      enter: Action.Select,
+      space: Action.Select,
+      escape: Action.DoNothing,
     },
     any: {
-      up: MovementAction.GoPrevious,
-      down: MovementAction.GoNext,
-      left: MovementAction.GoPrevious,
-      right: MovementAction.GoNext,
+      up: Action.GoPrevious,
+      down: Action.GoNext,
+      left: Action.GoPrevious,
+      right: Action.GoNext,
+      enter: Action.Select,
+      space: Action.Select,
+      escape: Action.DoNothing,
     },
   },
   grid: {
     horizontal: {
-      up: MovementAction.GoPreviousOrthogonal,
-      down: MovementAction.GoNextOrthogonal,
-      left: MovementAction.GoPrevious,
-      right: MovementAction.GoNext,
+      up: Action.GoPreviousOrthogonal,
+      down: Action.GoNextOrthogonal,
+      left: Action.GoPrevious,
+      right: Action.GoNext,
+      enter: Action.Select,
+      space: Action.Select,
+      escape: Action.DoNothing,
     },
     vertical: {
-      up: MovementAction.GoPrevious,
-      down: MovementAction.GoNext,
-      left: MovementAction.GoPreviousOrthogonal,
-      right: MovementAction.GoNextOrthogonal,
+      up: Action.GoPrevious,
+      down: Action.GoNext,
+      left: Action.GoPreviousOrthogonal,
+      right: Action.GoNextOrthogonal,
+      enter: Action.Select,
+      space: Action.Select,
+      escape: Action.DoNothing,
+    },
+  },
+  threeDimensional: {
+    horizontal: {
+      up: Action.GoPreviousOrthogonal,
+      down: Action.GoNextOrthogonal,
+      left: Action.GoPrevious,
+      right: Action.GoNext,
+      enter: Action.Select,
+      space: Action.GoDown,
+      escape: Action.GoUp,
+    },
+    vertical: {
+      up: Action.GoPrevious,
+      down: Action.GoNext,
+      left: Action.GoPreviousOrthogonal,
+      right: Action.GoNextOrthogonal,
+      enter: Action.Select,
+      space: Action.GoDown,
+      escape: Action.GoUp,
     },
   },
 };
