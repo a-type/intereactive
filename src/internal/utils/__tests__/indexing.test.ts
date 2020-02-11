@@ -83,6 +83,9 @@ describe('indexing utils', () => {
     test('goes upward', () => {
       expect(getUpwardDeepIndex([0, 1])).toEqual([0]);
     });
+    test("doesn't go up too far", () => {
+      expect(getUpwardDeepIndex([1])).toEqual([1]);
+    });
   });
 
   describe('get downward deep index', () => {

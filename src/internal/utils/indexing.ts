@@ -45,7 +45,7 @@ export const getOffsetDeepIndex = (
   offset: 1 | -1, // only single jumps are currently supported due to complex structure
   wrap?: boolean
 ): DeepIndex => {
-  const prefixIndices = getUpwardDeepIndex(currentIndex);
+  const prefixIndices = currentIndex.slice(0, currentIndex.length - 1);
   const parent = resolveIndexLocation(ordering, prefixIndices);
   const operantIndexValue = getOffsetIndex(
     currentIndex[currentIndex.length - 1],
@@ -62,6 +62,8 @@ export const getOffsetDeepIndex = (
  * structure.
  */
 export const getUpwardDeepIndex = (currentIndex: DeepIndex): DeepIndex => {
+  // don't go "up" to nothing
+  if (currentIndex.length === 1) return currentIndex;
   return currentIndex.slice(0, currentIndex.length - 1);
 };
 
