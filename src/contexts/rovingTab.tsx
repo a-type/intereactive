@@ -14,8 +14,10 @@ import { DeepIndex } from '../internal/utils/types';
 
 export type RovingTabContextValue = {
   onSelect: (key: string, value?: any) => any;
-  goToNext: (key: string) => any;
-  goToPrevious: (key: string) => any;
+  goToNext: () => any;
+  goToPrevious: () => any;
+  goToNextOrthogonal: () => any;
+  goToPreviousOrthogonal: () => any;
   goUp: () => any;
   goDown: () => any;
   selectedKey: string | null;
@@ -26,6 +28,8 @@ const RovingTabContext = createContext<RovingTabContextValue>({
   onSelect: () => {},
   goToNext: () => {},
   goToPrevious: () => {},
+  goToNextOrthogonal: () => {},
+  goToPreviousOrthogonal: () => {},
   goUp: () => {},
   goDown: () => {},
   selectedKey: null,
@@ -109,6 +113,8 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
       goToPrevious,
       goUp,
       goDown,
+      goToNextOrthogonal,
+      goToPreviousOrthogonal,
       findElementIndex,
       handleContainerElement,
     } = useSelectableChildren({
@@ -161,6 +167,8 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
       goToPrevious,
       goUp,
       goDown,
+      goToNextOrthogonal,
+      goToPreviousOrthogonal,
       id,
     };
 
@@ -169,7 +177,7 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
     };
 
     return (
-      <RovingTabContext.Provider value={contextValue} {...rest}>
+      <RovingTabContext.Provider value={contextValue}>
         {/*  multiline comment format required for prettier and ts to work in jsx.
           this props signature is too complex for TS due to the overridable nature.
         // @ts-ignore */ /* prettier-ignore */}

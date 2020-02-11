@@ -4,6 +4,8 @@ import * as ReactDOM from 'react-dom';
 import { Select } from './Select';
 import { RovingTab } from './RovingTab';
 import TreeDemo from './Tree';
+import GridDemo from './Grid';
+import TableDemo from './Table';
 
 const App = () => {
   return (
@@ -47,12 +49,17 @@ const App = () => {
         <RovingTab />
       </section>
       <section>
-        <h2>tree</h2>
+        <h2>complex selection movement</h2>
         <p>
           Using the flexible tools provided, you can create complex selection
-          interaction, like tree views.
+          interaction, like tree views and grids.
         </p>
+        <h3>tree</h3>
         <TreeDemo />
+        <h3>grid (flexbox)</h3>
+        <GridDemo />
+        <h3>table</h3>
+        <TableDemo />
       </section>
       <section>
         <a href="https://a-type.github.io/interreactive/lib">

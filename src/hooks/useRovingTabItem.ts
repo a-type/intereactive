@@ -60,6 +60,8 @@ export const useRovingTabItem = <T extends HTMLElement>(
     selectedKey,
     goUp,
     goDown,
+    goToNextOrthogonal,
+    goToPreviousOrthogonal,
   } = useContext(RovingTabContext);
   const { current: key } = useRef(
     value || `suggestion-${Math.floor(Math.random() * 10000000000)}`
@@ -82,11 +84,11 @@ export const useRovingTabItem = <T extends HTMLElement>(
       const action = getMovementAction(keyActions, event.keyCode);
 
       if (action === MovementAction.GoNext) {
-        goToNext(key);
+        goToNext();
         event.preventDefault();
         event.stopPropagation();
       } else if (action === MovementAction.GoPrevious) {
-        goToPrevious(key);
+        goToPrevious();
         event.preventDefault();
         event.stopPropagation();
       } else if (action === MovementAction.GoUp) {
@@ -95,6 +97,14 @@ export const useRovingTabItem = <T extends HTMLElement>(
         event.stopPropagation();
       } else if (action === MovementAction.GoDown) {
         goDown();
+        event.preventDefault();
+        event.stopPropagation();
+      } else if (action === MovementAction.GoNextOrthogonal) {
+        goToNextOrthogonal();
+        event.preventDefault();
+        event.stopPropagation();
+      } else if (action === MovementAction.GoPreviousOrthogonal) {
+        goToPreviousOrthogonal();
         event.preventDefault();
         event.stopPropagation();
       } else if (event.keyCode === KeyCode.Enter) {

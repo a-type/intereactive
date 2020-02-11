@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { SelectionProvider } from 'interreactive';
 
 const Select = () => {
-  const [value, setValue] = useState<string | null>(null);
+  const [value, setValue] = useState(null);
 
   return (
     <SelectionProvider value={value} onChange={setValue}>
@@ -25,7 +25,7 @@ Great, that's the start. This provider powers the Selection system, which will a
 import React, { forwardRef, HTMLAttributes } from 'react';
 import { useSelectionFocusElement } from 'interreactive';
 
-const SelectInput = forwardRef<HTMLInputElement, HTMLAttributes<HTMLInputElement>>(props, ref) => {
+const SelectInput = forwardRef(props, ref) => {
   const { props: selectionProps } = useSelectionFocusElement({ ref });
 
   return <input {...props} {...selectionProps} placeholder="Search..." />;
@@ -41,7 +41,7 @@ import React, { useState } from 'react';
 import { SelectionProvider } from 'interreactive';
 
 const Select = () => {
-  const [value, setValue] = useState<string | null>(null);
+  const [value, setValue] = useState(null);
   const [inputValue, setInputValue] = useState('');
 
   return (
@@ -61,10 +61,7 @@ Nothing special is happening yet. Let's make the options container and the optio
 import React from 'react';
 import { useSelectionItem, useSelectionItemsContainer } from 'interreactive';
 
-const SelectOption = forwardRef<
-  HTMLLIElement,
-  HTMLAttributes<HTMLLIElement> & { value: string }
->(({ value, ...props }, ref) => {
+const SelectOption = forwardRef(({ value, ...props }, ref) => {
   const { props: selectionProps, isActive } = useSelectionItem({ value });
 
   return (
@@ -78,10 +75,7 @@ const SelectOption = forwardRef<
   );
 });
 
-const SelectOptions = forwardRef<
-  HTMLUListElement,
-  HTMLAttributes<HTMLUListElement>
->((props, ref) => {
+const SelectOptions = forwardRef((props, ref) => {
   const { props: selectionProps } = useSelectionItemsContainer({ ref });
 
   return <ul role="listbox" {...props} {...selectionProps} />;
@@ -99,7 +93,7 @@ import { SelectionProvider } from 'interreactive';
 const options = ['Foo', 'Bar', 'Baz', 'Bop', 'Qux', 'Thud', 'Corge'];
 
 const Select = () => {
-  const [value, setValue] = useState<string | null>(null);
+  const [value, setValue] = useState(null);
   const [inputValue, setInputValue] = useState('');
 
   // filter the options the user sees based on what they type
@@ -137,7 +131,7 @@ import { SelectionProvider } from 'interreactive';
 const options = ['Foo', 'Bar', 'Baz', 'Bop', 'Qux', 'Thud', 'Corge'];
 
 const Select = () => {
-  const [value, setValue] = useState<string | null>(null);
+  const [value, setValue] = useState(null);
   const [inputValue, setInputValue] = useState('');
 
   // filter the options the user sees based on what they type

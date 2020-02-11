@@ -3,6 +3,8 @@ export enum MovementAction {
   GoPrevious,
   GoUp,
   GoDown,
+  GoNextOrthogonal,
+  GoPreviousOrthogonal,
   DoNothing,
 }
 
@@ -22,6 +24,10 @@ export const keyActionPresets: {
     horizontal: KeyActions;
     vertical: KeyActions;
     any: KeyActions;
+  };
+  grid: {
+    horizontal: KeyActions;
+    vertical: KeyActions;
   };
 } = {
   hierarchical: {
@@ -56,6 +62,20 @@ export const keyActionPresets: {
       down: MovementAction.GoNext,
       left: MovementAction.GoPrevious,
       right: MovementAction.GoNext,
+    },
+  },
+  grid: {
+    horizontal: {
+      up: MovementAction.GoPreviousOrthogonal,
+      down: MovementAction.GoNextOrthogonal,
+      left: MovementAction.GoPrevious,
+      right: MovementAction.GoNext,
+    },
+    vertical: {
+      up: MovementAction.GoPrevious,
+      down: MovementAction.GoNext,
+      left: MovementAction.GoPreviousOrthogonal,
+      right: MovementAction.GoNextOrthogonal,
     },
   },
 };

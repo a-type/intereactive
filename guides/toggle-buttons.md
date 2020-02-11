@@ -1,6 +1,6 @@
-# Roving Tab Index
+# Toggle Buttons
 
-You want to create a grouped set of interactive elements (like `<button>`s) which behave as a single control, allowing the user to move their selection between the options before tabbing on to the next interactive block.
+You want to create a 1-dimensional, grouped set of interactive elements (like `<button>`s) which behave as a single control, allowing the user to move their selection between the options before tabbing on to the next interactive block.
 
 First, pull in `<RovingTabContainer>`:
 
@@ -9,10 +9,7 @@ import React, { useState, forwardRef, HTMLAttributes } from 'react';
 import { RovingTabContainer } from 'interreactive';
 
 // using forwardRef is just good practice.
-const ToggleButtonsControl = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->((props, ref) => {
+const ToggleButtonsControl = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');
 
   return (
@@ -29,10 +26,7 @@ So we've got a basic container element now. If you want something other than a `
 import React, { forwardRef } from 'react';
 import { useRovingTabItem } from 'interreactive';
 
-const ToggleButton = forwardRef<
-  HTMLButtonElement,
-  HTMLAttributes<HTMLButtonElement> & { value: string }
->(({ value, ...rest }, ref) => {
+const ToggleButton = forwardRef(({ value, ...rest }, ref) => {
   const { props: tabItemProps } = useRovingTabItem({ value, ref });
 
   return <button {...rest} {...tabItemProps} />;
@@ -47,10 +41,7 @@ Let's plug them in:
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
 import { RovingTabContainer } from 'interreactive';
 
-const ToggleButtonsControl = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->((props, ref) => {
+const ToggleButtonsControl = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');
 
   return (
@@ -69,10 +60,7 @@ That was easy! One important fact about `interreactive` is that you don't _have_
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
 import { RovingTabContainer } from 'interreactive';
 
-const ToggleButtonsControl = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->((props, ref) => {
+const ToggleButtonsControl = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');
 
   return (

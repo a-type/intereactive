@@ -93,9 +93,12 @@ a:focus {
 button:focus,
 div:focus,
 input:focus,
+td:focus,
 li:focus > .tree-label-selected {
-  outline: 0;
+  outline-color: var(--focus-color);
   border-color: var(--focus-color);
+  outline-width: 1px;
+  outline-style: solid;
   color: var(--focus-color);
   text-shadow: var(--focus-text-effect);
   background: radial-gradient(
@@ -157,6 +160,10 @@ section {
   flex-direction: column;
 }
 
+table {
+  width: 100%;
+}
+
 .card {
   padding: 30px;
   border-radius: 12px;
@@ -185,6 +192,18 @@ section {
 }
 .row > * + * {
   margin-left: 10px;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+}
+.grid > .grid-row {
+  display: flex;
+  flex-direction: row;
+}
+.grid > .grid-row > .grid-item {
+  flex: 1 0 0;
 }
 
 .popper {

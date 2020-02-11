@@ -1,5 +1,15 @@
 import { DeepOrderingNode, DeepIndex } from './types';
 
+export class InvalidIndexError extends Error {
+  constructor(index: DeepIndex) {
+    super(
+      `Index ${JSON.stringify(
+        index
+      )} is not a valid position in the provided selectable element structure`
+    );
+  }
+}
+
 export const getOffsetIndex = (
   currentIndex: number,
   length: number,
@@ -24,12 +34,29 @@ export const getOffsetIndex = (
 export const resolveIndexLocation = (
   ordering: DeepOrderingNode,
   index: DeepIndex
-): DeepOrderingNode => {
+): DeepOrderingNode | null => {
   if (index.length === 0) {
     return ordering;
   } else {
-    const [firstLevel, ...rest] = index;
-    return resolveIndexLocation(ordering.children[firstLevel], rest);
+    const [firstPosition, ...rest] = index;
+    const [firstX, firstY] = firstPosition;
+
+    if (!ordering.children[firstY] || !ordering.children[firstY][firstX]) {
+      return null;
+    }
+
+    return resolveIndexLocation(
+      // Y is indexed first since the conceptual model of the 2d children array
+      // is rows stacked on top of one another
+      //
+      // [0, 1, 2, 3, 4, 5]
+      // [6, 7, 8, 9, a, b]
+      // [c, d, e, f, g, h]
+      //
+      // first we select which row (using Y) then the index in that row (X)
+      ordering.children[firstY]?.[firstX] ?? null,
+      rest
+    );
   }
 };
 
@@ -42,18 +69,31 @@ export const resolveIndexLocation = (
 export const getOffsetDeepIndex = (
   currentIndex: DeepIndex,
   ordering: DeepOrderingNode,
-  offset: 1 | -1, // only single jumps are currently supported due to complex structure
+  [offsetX, offsetY]: [-1 | 0 | 1, -1 | 0 | 1],
   wrap?: boolean
 ): DeepIndex => {
   const prefixIndices = currentIndex.slice(0, currentIndex.length - 1);
   const parent = resolveIndexLocation(ordering, prefixIndices);
-  const operantIndexValue = getOffsetIndex(
-    currentIndex[currentIndex.length - 1],
+
+  if (!parent) {
+    throw new InvalidIndexError(currentIndex);
+  }
+
+  const operantCurrentPosition = currentIndex[currentIndex.length - 1];
+
+  const operantYIndexValue = getOffsetIndex(
+    operantCurrentPosition[1],
     parent.children.length,
-    offset,
+    offsetY,
     wrap
   );
-  return [...prefixIndices, operantIndexValue];
+  const operantXIndexValue = getOffsetIndex(
+    operantCurrentPosition[0],
+    parent.children[operantYIndexValue].length,
+    offsetX,
+    wrap
+  );
+  return [...prefixIndices, [operantXIndexValue, operantYIndexValue]];
 };
 
 /**
@@ -76,10 +116,15 @@ export const getDownwardDeepIndex = (
   ordering: DeepOrderingNode
 ): DeepIndex => {
   const current = resolveIndexLocation(ordering, currentIndex);
+
+  if (!current) {
+    throw new InvalidIndexError(currentIndex);
+  }
+
   if (!current.children.length) {
     return currentIndex;
   }
-  return [...currentIndex, 0];
+  return [...currentIndex, [0, 0]];
 };
 
 /**
@@ -91,9 +136,10 @@ export const getClosestValidDeepIndex = (
   prospectiveIndex: DeepIndex,
   ordering: DeepOrderingNode
 ): DeepIndex =>
-  prospectiveIndex.reduce<DeepIndex>((rebuiltIndex, nextPosition) => {
+  prospectiveIndex.reduce<DeepIndex>((rebuiltIndex, [nextX, nextY]) => {
     const level = resolveIndexLocation(ordering, rebuiltIndex);
-    if (!level.children.length) {
+
+    if (!level || !level.children.length) {
       // reached a point where the index specifies a position,
       // but the children are empty, so we "cut off" the index at
       // its current place
@@ -101,8 +147,8 @@ export const getClosestValidDeepIndex = (
     } else {
       // otherwise, try to get close to the provided position,
       // but stop at the end of the children list.
-      return rebuiltIndex.concat(
-        Math.min(level.children.length - 1, nextPosition)
-      );
+      const closestY = Math.min(level.children.length - 1, nextY);
+      const closestX = Math.min(level.children[closestY]?.length ?? 0, nextX);
+      return [...rebuiltIndex, [closestX, closestY]];
     }
   }, []);

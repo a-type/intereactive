@@ -6,10 +6,10 @@ import {
   getUpwardDeepIndex,
   getDownwardDeepIndex,
 } from './indexing';
-import { getElementKey } from './attributes';
+import { getElementKey, isElementRow } from './attributes';
 import { DeepOrderingNode, DeepIndex } from './types';
 import { isHtmlElement } from './guards';
-import { PARENT_CONTAINER_ATTRIBUTE } from '../constants';
+import { PARENT_CONTAINER_ATTRIBUTE, INITIAL_INDEX } from '../constants';
 
 type ElementMap = {
   [key: string]: {
@@ -18,6 +18,11 @@ type ElementMap = {
   };
 };
 
+type OrderingDiscoveryContext = {
+  crossContainerBoundaries?: boolean;
+  parentIndex: DeepIndex;
+  crossAxisRowPosition: number;
+};
 /**
  * Mutates a master DeepOrderingNode tree and ElementMap. Traverses
  * the DOM tree and fills in the parallel DeepOrdering tree, and
@@ -27,17 +32,20 @@ export const discoverOrderingStructure = (
   parent: DeepOrderingNode,
   elementMap: ElementMap,
   root: Node,
-  parentIndex: DeepIndex,
   {
     crossContainerBoundaries,
-    flatten,
-  }: {
-    crossContainerBoundaries?: boolean;
-    flatten?: boolean;
-  } = {}
+    parentIndex,
+    crossAxisRowPosition,
+  }: OrderingDiscoveryContext = {
+    parentIndex: [],
+    crossAxisRowPosition: 0,
+  }
 ): void => {
   // parent ordering node represents the root node.
   // assume root node has already been processed.
+
+  let currentCrossAxisRowPosition = crossAxisRowPosition;
+
   root.childNodes.forEach(node => {
     // bail if text node or other non-html node
     if (!isHtmlElement(node)) {
@@ -57,7 +65,16 @@ export const discoverOrderingStructure = (
     const key = getElementKey(node);
 
     if (key) {
-      const childIndex = [...parentIndex, parent.children.length];
+      if (!parent.children[currentCrossAxisRowPosition]) {
+        parent.children[currentCrossAxisRowPosition] = [];
+      }
+      const childIndex: DeepIndex = [
+        ...parentIndex,
+        [
+          parent.children[currentCrossAxisRowPosition].length,
+          currentCrossAxisRowPosition,
+        ],
+      ];
 
       elementMap[key] = {
         element: node,
@@ -69,38 +86,24 @@ export const discoverOrderingStructure = (
         children: [],
       };
 
-      // depending on flattening behavior, we either:
-      // true -> add this child to the parent's children, THEN continue deeper
-      //         while keeping parent as the reference point
-      // false -> continue deeper using this child as the reference point,
-      //          THEN add this child to the parent's children
-
-      if (flatten) {
-        parent.children.push(newOrderingNode);
-        discoverOrderingStructure(parent, elementMap, node, parentIndex, {
-          crossContainerBoundaries,
-          flatten,
-        });
-      } else {
-        discoverOrderingStructure(
-          newOrderingNode,
-          elementMap,
-          node,
-          childIndex,
-          {
-            crossContainerBoundaries,
-            flatten,
-          }
-        );
-        parent.children.push(newOrderingNode);
-      }
+      discoverOrderingStructure(newOrderingNode, elementMap, node, {
+        parentIndex: childIndex,
+        crossAxisRowPosition: 0,
+        crossContainerBoundaries,
+      });
+      parent.children[currentCrossAxisRowPosition].push(newOrderingNode);
     } else {
       // if not, continue traversing downward...
       // kind of a 'skip level'
-      discoverOrderingStructure(parent, elementMap, node, parentIndex, {
+      discoverOrderingStructure(parent, elementMap, node, {
+        parentIndex,
+        crossAxisRowPosition: currentCrossAxisRowPosition,
         crossContainerBoundaries,
-        flatten,
       });
+
+      if (isElementRow(node)) {
+        currentCrossAxisRowPosition = currentCrossAxisRowPosition + 1;
+      }
     }
   });
 };
@@ -110,9 +113,8 @@ export const useSelectableChildren = ({
   itemCount,
   wrap,
   crossContainerBoundaries,
-  initialSelectedIndex = [0],
+  initialSelectedIndex = INITIAL_INDEX,
   onSelect,
-  flatten,
 }: {
   observeDeep?: boolean;
   itemCount?: number;
@@ -124,7 +126,6 @@ export const useSelectableChildren = ({
     key: string,
     index: DeepIndex
   ) => void;
-  flatten?: boolean;
 } = {}) => {
   const elementKeyMapRef = useRef<ElementMap>({});
   const [selectionDeepIndex, setSelectionDeepIndex] = useState<DeepIndex>(
@@ -143,9 +144,10 @@ export const useSelectableChildren = ({
       };
       const newElementMap: ElementMap = {};
 
-      discoverOrderingStructure(newOrdering, newElementMap, container, [], {
+      discoverOrderingStructure(newOrdering, newElementMap, container, {
         crossContainerBoundaries,
-        flatten,
+        parentIndex: [],
+        crossAxisRowPosition: 0,
       });
 
       setDeepOrderingTree(newOrdering);
@@ -284,13 +286,25 @@ export const useSelectableChildren = ({
 
   const goToNext = useCallback(() => {
     setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, 1, wrap)
+      getOffsetDeepIndex(current, deepOrderingTree, [1, 0], wrap)
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToPrevious = useCallback(() => {
     setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, -1, wrap)
+      getOffsetDeepIndex(current, deepOrderingTree, [-1, 0], wrap)
+    );
+  }, [setSelection, deepOrderingTree, wrap]);
+
+  const goToNextOrthogonal = useCallback(() => {
+    setSelection(current =>
+      getOffsetDeepIndex(current, deepOrderingTree, [0, 1], wrap)
+    );
+  }, [setSelection, deepOrderingTree, wrap]);
+
+  const goToPreviousOrthogonal = useCallback(() => {
+    setSelection(current =>
+      getOffsetDeepIndex(current, deepOrderingTree, [0, -1], wrap)
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
@@ -316,6 +330,8 @@ export const useSelectableChildren = ({
     itemCount: finalItemCount,
     goToNext,
     goToPrevious,
+    goToNextOrthogonal,
+    goToPreviousOrthogonal,
     goUp,
     goDown,
     setSelectionDeepIndex: setSelection,

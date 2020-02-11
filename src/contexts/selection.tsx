@@ -1,5 +1,6 @@
 import React, { createContext, FC, useCallback, useEffect, Ref } from 'react';
 import { useSelectableChildren } from '../internal/utils/selection';
+import { INITIAL_INDEX } from '../internal/constants';
 
 export type SelectionContextValue = {
   onSelect: (value?: string) => any;
@@ -78,7 +79,6 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
   } = useSelectableChildren({
     observeDeep: !shallow,
     itemCount,
-    flatten: true,
   });
 
   const containerRef = useCallback(
@@ -90,7 +90,7 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
 
   // when the controlled value changes, update the selected index to match
   useEffect(() => {
-    const idx = value ? findElementIndex(value) : [0];
+    const idx = value ? findElementIndex(value) : INITIAL_INDEX;
     setSelectionDeepIndex(idx);
   }, [value, findElementIndex, setSelectionDeepIndex]);
 
