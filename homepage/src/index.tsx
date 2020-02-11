@@ -5,6 +5,7 @@ import { Select } from './Select';
 import { RovingTab } from './RovingTab';
 import TreeDemo from './Tree';
 import GridDemo from './Grid';
+import FlexGridDemo from './FlexGrid';
 import TableDemo from './Table';
 
 const App = () => {
@@ -56,8 +57,10 @@ const App = () => {
         </p>
         <h3>tree</h3>
         <TreeDemo />
-        <h3>grid (flexbox)</h3>
+        <h3>grid (css grid)</h3>
         <GridDemo />
+        <h3>grid (flexbox)</h3>
+        <FlexGridDemo />
         <h3>table</h3>
         <TableDemo />
       </section>

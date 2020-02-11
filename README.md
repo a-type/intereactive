@@ -61,3 +61,7 @@ Avoid unnecessary DOM modifications within these containers, and try to simplify
 ### 2. Lack of virtualization support
 
 At the moment, virtualization is not supported. While it may be theoretically possible to support, it hasn't made it on the roadmap yet and will be pretty complex to implement.
+
+### 3. Requirements around manual coordinates
+
+When DOM structure can't properly infer the correct selection structure, manually supplying item coordinates is required. For instance, using CSS Grid for a grid layout means that the content is visually represented as a 2D grid, but in DOM the items are all still direct siblings. In such cases, you will need to pass the `coordinate` option to the `useRovingTabItem` hook to indicate where in the 2D structure the item lies.

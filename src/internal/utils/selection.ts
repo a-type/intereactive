@@ -6,7 +6,11 @@ import {
   getUpwardDeepIndex,
   getDownwardDeepIndex,
 } from './indexing';
-import { getElementKey, isElementRow } from './attributes';
+import {
+  getElementKey,
+  isElementRow,
+  getElementManualCoordinates,
+} from './attributes';
 import { DeepOrderingNode, DeepIndex } from './types';
 import { isHtmlElement } from './guards';
 import { PARENT_CONTAINER_ATTRIBUTE, INITIAL_INDEX } from '../constants';
@@ -65,16 +69,25 @@ export const discoverOrderingStructure = (
     const key = getElementKey(node);
 
     if (key) {
-      if (!parent.children[currentCrossAxisRowPosition]) {
-        parent.children[currentCrossAxisRowPosition] = [];
+      // the user may specify manual coordinates for an element. this allows them
+      // to place the element anywhere within the 2d grid of children of the parent
+      // node context. the user can't today specify a "z" coordinate (i.e. break out
+      // of the natural DOM inheritance structure and put a child element above or
+      // beside its parent in ordering)
+      const [
+        manualXCoordinate,
+        manualYCoordinate,
+      ] = getElementManualCoordinates(node);
+
+      // resolve the final coordinates
+      const finalY = manualYCoordinate ?? currentCrossAxisRowPosition;
+      if (!parent.children[finalY]) {
+        parent.children[finalY] = [];
       }
-      const childIndex: DeepIndex = [
-        ...parentIndex,
-        [
-          parent.children[currentCrossAxisRowPosition].length,
-          currentCrossAxisRowPosition,
-        ],
-      ];
+      const naturalX = parent.children[finalY].length;
+      const finalX = manualXCoordinate ?? naturalX;
+
+      const childIndex: DeepIndex = [...parentIndex, [finalX, finalY]];
 
       elementMap[key] = {
         element: node,
@@ -91,7 +104,7 @@ export const discoverOrderingStructure = (
         crossAxisRowPosition: 0,
         crossContainerBoundaries,
       });
-      parent.children[currentCrossAxisRowPosition].push(newOrderingNode);
+      parent.children[finalY][finalX] = newOrderingNode;
     } else {
       // if not, continue traversing downward...
       // kind of a 'skip level'

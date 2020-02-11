@@ -10,10 +10,12 @@ import RovingTabContext from '../contexts/rovingTab';
 import { KeyCode } from '../internal/types';
 import { getMovementAction } from '../internal/utils/movement';
 import { KeyActions, keyActionPresets, MovementAction } from '../keyActions';
+import { normalizeCoordinate } from '../internal/utils/indexing';
 import {
   KEY_DATA_ATTRIBUTE,
   VALUE_DATA_ATTRIBUTE,
-  INDEX_DATA_ATTRIBUTE,
+  X_INDEX_DATA_ATTRIBUTE,
+  Y_INDEX_DATA_ATTRIBUTE,
 } from '../internal/constants';
 
 export type UseRovingTabItemOptions<T extends HTMLElement = any> = {
@@ -30,11 +32,10 @@ export type UseRovingTabItemOptions<T extends HTMLElement = any> = {
    */
   ref?: Ref<T>;
   /**
-   * For advanced use cases like virtualization, you can manually
-   * specify the ordering of this item. If omitted, order will be inferred by DOM
-   * structure.
+   * For advanced use cases, you can manually specify the ordering of this item. If
+   * omitted, order will be inferred by DOM structure.
    */
-  index?: number;
+  coordinate?: number | [number, number];
   /**
    * Determines the keyboard arrow directions which can be used
    * to move from this item to next or previous items. By default the user can use
@@ -52,7 +53,12 @@ export type UseRovingTabItemOptions<T extends HTMLElement = any> = {
 export const useRovingTabItem = <T extends HTMLElement>(
   options: UseRovingTabItemOptions<T> = {}
 ) => {
-  const { value, ref, index, keyActions = keyActionPresets.flat.any } = options;
+  const {
+    value,
+    ref,
+    coordinate,
+    keyActions = keyActionPresets.flat.any,
+  } = options;
   const {
     onSelect,
     goToNext,
@@ -127,6 +133,10 @@ export const useRovingTabItem = <T extends HTMLElement>(
   const isSelected = selectedKey === key;
   const isTabbable = isSelected;
 
+  const [manualXCoordinate, manualYCoordinate] = normalizeCoordinate(
+    coordinate
+  );
+
   return {
     props: {
       ref: combinedRef,
@@ -135,7 +145,8 @@ export const useRovingTabItem = <T extends HTMLElement>(
       //onFocus: handleFocus,
       [KEY_DATA_ATTRIBUTE]: key,
       [VALUE_DATA_ATTRIBUTE]: value,
-      [INDEX_DATA_ATTRIBUTE]: index,
+      [X_INDEX_DATA_ATTRIBUTE]: manualXCoordinate,
+      [Y_INDEX_DATA_ATTRIBUTE]: manualYCoordinate,
       tabIndex: isTabbable ? 0 : -1,
     },
     selected: isSelected,

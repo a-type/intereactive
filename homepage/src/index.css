@@ -194,18 +194,6 @@ table {
   margin-left: 10px;
 }
 
-.grid {
-  display: flex;
-  flex-direction: column;
-}
-.grid > .grid-row {
-  display: flex;
-  flex-direction: row;
-}
-.grid > .grid-row > .grid-item {
-  flex: 1 0 0;
-}
-
 .popper {
   background: var(--bg-color-1);
   border: 1px solid var(--border-color);

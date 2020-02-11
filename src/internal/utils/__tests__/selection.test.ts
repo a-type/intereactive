@@ -2,6 +2,8 @@ import {
   KEY_DATA_ATTRIBUTE,
   PARENT_CONTAINER_ATTRIBUTE,
   ROW_CONTAINER_ATTRIBUTE,
+  X_INDEX_DATA_ATTRIBUTE,
+  Y_INDEX_DATA_ATTRIBUTE,
 } from '../../constants';
 import { discoverOrderingStructure } from '../selection';
 
@@ -106,7 +108,7 @@ describe('selection utils', () => {
       });
     });
 
-    describe.only('can convert an example 3d DOM structure into correct tree ordering', () => {
+    describe('can convert an example 3d DOM structure into correct tree ordering', () => {
       var parser = new DOMParser();
       var html = parser.parseFromString(
         `
@@ -318,6 +320,123 @@ describe('selection utils', () => {
         expect(elementMap['b2-i'].index).toEqual([
           [1, 1],
           [0, 0],
+        ]);
+      });
+    });
+
+    describe('can convert an example flat DOM structure with manual coordinates into correct tree ordering', () => {
+      var parser = new DOMParser();
+      var html = parser.parseFromString(
+        `
+        <div>
+          <div ${KEY_DATA_ATTRIBUTE}="a1" ${X_INDEX_DATA_ATTRIBUTE}="0" ${Y_INDEX_DATA_ATTRIBUTE}="0">
+            <!-- sub-grid -->
+            <div ${KEY_DATA_ATTRIBUTE}="a1-b2" ${X_INDEX_DATA_ATTRIBUTE}="1" ${Y_INDEX_DATA_ATTRIBUTE}="1"></div>
+            <div ${KEY_DATA_ATTRIBUTE}="a1-a1" ${X_INDEX_DATA_ATTRIBUTE}="0" ${Y_INDEX_DATA_ATTRIBUTE}="0"></div>
+            <div ${KEY_DATA_ATTRIBUTE}="a1-b1" ${X_INDEX_DATA_ATTRIBUTE}="0" ${Y_INDEX_DATA_ATTRIBUTE}="1"></div>
+            <div ${KEY_DATA_ATTRIBUTE}="a1-a2" ${X_INDEX_DATA_ATTRIBUTE}="1" ${Y_INDEX_DATA_ATTRIBUTE}="0"></div>
+          </div>
+          <div ${KEY_DATA_ATTRIBUTE}="a2" ${X_INDEX_DATA_ATTRIBUTE}="1" ${Y_INDEX_DATA_ATTRIBUTE}="0"></div>
+          <div ${KEY_DATA_ATTRIBUTE}="b2" ${X_INDEX_DATA_ATTRIBUTE}="1" ${Y_INDEX_DATA_ATTRIBUTE}="1"></div>
+          <div ${KEY_DATA_ATTRIBUTE}="b3" ${X_INDEX_DATA_ATTRIBUTE}="2" ${Y_INDEX_DATA_ATTRIBUTE}="1"></div>
+          <div ${KEY_DATA_ATTRIBUTE}="c4" ${X_INDEX_DATA_ATTRIBUTE}="3" ${Y_INDEX_DATA_ATTRIBUTE}="2"></div>
+        </div>
+      `,
+        'text/html'
+      );
+
+      test('ignoring sub-containers', () => {
+        const tree = {
+          key: null,
+          children: [],
+        };
+        const elementMap: any = {};
+        discoverOrderingStructure(tree, elementMap, html, {
+          crossAxisRowPosition: 0,
+          crossContainerBoundaries: false,
+          parentIndex: [],
+        });
+        expect(tree).toEqual({
+          key: null,
+          children: [
+            [
+              {
+                key: 'a1',
+                children: [
+                  [
+                    {
+                      key: 'a1-a1',
+                      children: [],
+                    },
+                    {
+                      key: 'a1-a2',
+                      children: [],
+                    },
+                  ],
+                  [
+                    {
+                      key: 'a1-b1',
+                      children: [],
+                    },
+                    {
+                      key: 'a1-b2',
+                      children: [],
+                    },
+                  ],
+                ],
+              },
+              {
+                key: 'a2',
+                children: [],
+              },
+            ],
+            [
+              undefined,
+              {
+                key: 'b2',
+                children: [],
+              },
+              {
+                key: 'b3',
+                children: [],
+              },
+            ],
+            [
+              undefined,
+              undefined,
+              undefined,
+              {
+                key: 'c4',
+                children: [],
+              },
+            ],
+          ],
+        });
+        expect(Object.keys(elementMap).sort()).toEqual(
+          [
+            'a1',
+            'a2',
+            'a1-a1',
+            'a1-a2',
+            'a1-b1',
+            'a1-b2',
+            'b2',
+            'b3',
+            'c4',
+          ].sort()
+        );
+
+        expect(elementMap['a1'].index).toEqual([[0, 0]]);
+
+        expect(elementMap['a2'].index).toEqual([[1, 0]]);
+
+        expect(elementMap['b3'].index).toEqual([[2, 1]]);
+
+        expect(elementMap['c4'].index).toEqual([[3, 2]]);
+
+        expect(elementMap['a1-b2'].index).toEqual([
+          [0, 0],
+          [1, 1],
         ]);
       });
     });

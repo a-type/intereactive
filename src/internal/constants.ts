@@ -4,7 +4,8 @@ import { DeepIndex } from './utils/types';
 
 export const KEY_DATA_ATTRIBUTE = 'data-interreactive-key';
 export const VALUE_DATA_ATTRIBUTE = 'data-interreactive-value';
-export const INDEX_DATA_ATTRIBUTE = 'data-interreactive-index';
+export const X_INDEX_DATA_ATTRIBUTE = 'data-interreactive-x-index';
+export const Y_INDEX_DATA_ATTRIBUTE = 'data-interreactive-y-index';
 export const PARENT_CONTAINER_ATTRIBUTE = 'data-interreactive-parent';
 export const ROW_CONTAINER_ATTRIBUTE = 'data-interreactive-row';
 
