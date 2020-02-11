@@ -93,7 +93,7 @@ a:focus {
 button:focus,
 div:focus,
 input:focus,
-.tree-label-selected {
+li:focus > .tree-label-selected {
   outline: 0;
   border-color: var(--focus-color);
   color: var(--focus-color);
@@ -104,6 +104,10 @@ input:focus,
     transparent 40%,
     var(--focus-color-light) 100%
   );
+}
+
+li:focus {
+  outline: none;
 }
 
 button:active,
