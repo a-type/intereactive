@@ -1,47 +1,40 @@
 import * as React from 'react';
 import { RovingTabContainerProps } from '../../src/contexts/rovingTab';
 import {
-  useRow,
-  useRovingTabItem,
   RovingTabContainer,
   keyActionPresets,
+  Row,
+  RovingTabItem,
 } from '../../src';
 
-const GridRow: React.FC<React.HTMLAttributes<HTMLDivElement>> = props => {
-  const { props: rowProps } = useRow();
-
-  return (
-    <div
-      className="flex-grid-row"
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-      }}
-      {...props}
-      {...rowProps}
-    />
-  );
-};
+const GridRow = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>((props, ref) => (
+  <Row
+    className="flex-grid-row"
+    style={{
+      display: 'flex',
+      flexDirection: 'row',
+    }}
+    ref={ref}
+    {...props}
+  />
+));
 
 const GridItem = React.forwardRef<
   HTMLButtonElement,
   React.HTMLAttributes<HTMLButtonElement> & { value: string }
->(({ value, ...rest }, ref) => {
-  const { props: itemProps } = useRovingTabItem({
-    value,
-    ref,
-    keyActions: keyActionPresets.grid.horizontal,
-  });
-
-  return (
-    <button
-      className="flex-grid-item"
-      style={{ flex: '1 0 0' }}
-      {...rest}
-      {...itemProps}
-    />
-  );
-});
+>(({ value, ...rest }, ref) => (
+  <RovingTabItem
+    className="flex-grid-item"
+    style={{ flex: '1 0 0' }}
+    value={value}
+    ref={ref}
+    keyActions={keyActionPresets.grid.horizontal}
+    {...rest}
+  />
+));
 
 const Grid = React.forwardRef<HTMLDivElement, RovingTabContainerProps>(
   (props, ref) => {

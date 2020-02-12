@@ -94,7 +94,7 @@ button:focus,
 div:focus,
 input:focus,
 td:focus,
-li:focus > .tree-label-selected {
+li:focus > .tree-label {
   outline-color: var(--focus-color);
   border-color: var(--focus-color);
   outline-width: 1px;

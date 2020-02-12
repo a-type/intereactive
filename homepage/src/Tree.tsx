@@ -1,9 +1,5 @@
 import * as React from 'react';
-import {
-  useRovingTabItem,
-  RovingTabContainer,
-  keyActionPresets,
-} from '../../src';
+import { RovingTabContainer, keyActionPresets, RovingTabItem } from '../../src';
 
 type TreeItemProps = {
   value: string;
@@ -12,20 +8,18 @@ type TreeItemProps = {
 };
 
 const TreeItem = React.forwardRef<HTMLLIElement, TreeItemProps>(
-  ({ value, label, children, ...rest }, ref) => {
-    const { props: rovingTabProps, selected } = useRovingTabItem({
-      value,
-      ref,
-      keyActions: keyActionPresets.hierarchical.vertical,
-    });
-
-    return (
-      <li {...rest} {...rovingTabProps}>
-        <div className={selected ? 'tree-label-selected' : ''}>{label}</div>
-        {children && <ul>{children}</ul>}
-      </li>
-    );
-  }
+  ({ value, label, children, ...rest }, ref) => (
+    <RovingTabItem
+      component="li"
+      value={value}
+      keyActions={keyActionPresets.hierarchical.vertical}
+      ref={ref}
+      {...rest}
+    >
+      <div className="tree-label">{label}</div>
+      {children && <ul>{children}</ul>}
+    </RovingTabItem>
+  )
 );
 
 type TreeProps = {

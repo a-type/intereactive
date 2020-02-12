@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { RovingTabContainerProps } from '../../src/contexts/rovingTab';
 import {
-  useRovingTabItem,
   RovingTabContainer,
   keyActionPresets,
   Row,
+  RovingTabItem,
 } from '../../src';
 
 const TableRow = React.forwardRef<
@@ -17,15 +17,16 @@ const TableRow = React.forwardRef<
 const TableCell = React.forwardRef<
   HTMLTableDataCellElement,
   React.HTMLAttributes<HTMLTableDataCellElement> & { value: string }
->(({ value, ...rest }, ref) => {
-  const { props: itemProps } = useRovingTabItem({
-    value,
-    ref,
-    keyActions: keyActionPresets.grid.horizontal,
-  });
-
-  return <td className="table-cell" {...rest} {...itemProps} />;
-});
+>(({ value, ...rest }, ref) => (
+  <RovingTabItem
+    component="td"
+    className="table-cell"
+    {...rest}
+    value={value}
+    ref={ref}
+    keyActions={keyActionPresets.grid.horizontal}
+  />
+));
 
 const Table = React.forwardRef<HTMLTableElement, RovingTabContainerProps>(
   (props, ref) => {
