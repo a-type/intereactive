@@ -27,17 +27,17 @@ export const SelectionItem = forwardRef<any, SelectionItemProps>(
     },
     ref
   ) => {
-    const { props: containerProps, isActive } = useSelectionItem({ value });
+    const { props: containerProps, selected } = useSelectionItem({ value });
 
     return (
       <CustomComponent
         ref={ref}
-        {...(isActive ? selectedProps : {})}
+        {...(selected ? selectedProps : {})}
         {...props}
         {...containerProps}
       >
         {typeof children === 'function'
-          ? (children as SelectionItemRenderPropFn)({ selected: isActive })
+          ? (children as SelectionItemRenderPropFn)({ selected })
           : children}
       </CustomComponent>
     );

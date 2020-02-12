@@ -45,5 +45,5 @@ export const useSelectionItem = ({
     onClick: handleClick,
   };
 
-  return { props, isActive: selectedKey === key };
+  return { props, selected: selectedKey === key };
 };

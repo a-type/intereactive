@@ -100,12 +100,12 @@ import React from 'react';
 import { useSelectionItem, useSelectionItemsContainer } from 'interreactive';
 
 const SelectOption = forwardRef(({ value, ...props }, ref) => {
-  const { props: selectionProps, isActive } = useSelectionItem({ value });
+  const { props: selectionProps, selected } = useSelectionItem({ value });
 
   return (
     <li
       role="option"
-      aria-selected={isActive}
+      aria-selected={selected}
       {...props}
       {...selectionProps}
       ref={ref}
