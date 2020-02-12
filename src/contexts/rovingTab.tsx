@@ -2,8 +2,6 @@ import React, {
   createContext,
   useCallback,
   useEffect,
-  HTMLAttributes,
-  ElementType,
   forwardRef,
 } from 'react';
 import { PARENT_CONTAINER_ATTRIBUTE } from '../internal/constants';
@@ -11,6 +9,7 @@ import { useIdOrGenerated } from '../internal/utils/ids';
 import { useSelectableChildren } from '../internal/utils/selection';
 import { useCombinedRefs } from '../internal/utils/refs';
 import { DeepIndex } from '../internal/utils/types';
+import { OverridableProps } from '../internal/types';
 
 export type RovingTabContextValue = {
   onSelect: (key: string, value?: any) => any;
@@ -38,27 +37,21 @@ const RovingTabContext = createContext<RovingTabContextValue>({
 
 export default RovingTabContext;
 
-type BaseRovingTabContainerProps<P> = {
-  noWrap?: boolean;
-  observeDeep?: boolean;
-  itemCount?: number;
-  value?: string;
-  onChange?: (value: string) => any;
-  /**
-   * Override the component used to render the container element
-   */
-  component?: ElementType<P>;
-  /**
-   * Disables the default behavior to scroll the selected element
-   * into view
-   */
-  disableScrollIntoView?: boolean;
-};
-
-export type RovingTabContainerProps<
-  P = HTMLAttributes<HTMLDivElement>
-> = BaseRovingTabContainerProps<P> &
-  Omit<P, keyof BaseRovingTabContainerProps<P>>;
+export type RovingTabContainerProps = OverridableProps<
+  {
+    noWrap?: boolean;
+    observeDeep?: boolean;
+    itemCount?: number;
+    value?: string;
+    onChange?: (value: string) => any;
+    /**
+     * Disables the default behavior to scroll the selected element
+     * into view
+     */
+    disableScrollIntoView?: boolean;
+  },
+  'div'
+>;
 
 export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
   (

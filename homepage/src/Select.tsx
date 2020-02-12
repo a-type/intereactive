@@ -2,47 +2,42 @@ import * as React from 'react';
 
 import {
   SelectionProvider,
-  useSelectionFocusElement,
-  useSelectionItem,
-  useSelectionItemsContainer,
+  SelectionFocusElement,
+  SelectionItem,
+  SelectionItemsContainer,
 } from '../../src';
 import './index.css';
 import { Manager, Reference, Popper } from 'react-popper';
 
-const SelectInput = React.forwardRef<any, any>((props, ref) => {
-  const { props: selectionProps } = useSelectionFocusElement({ ref });
-
-  return (
-    <input {...props} {...selectionProps} placeholder="Type something..." />
-  );
-});
+const SelectInput = React.forwardRef<any, any>((props, ref) => (
+  <SelectionFocusElement
+    {...props}
+    ref={ref}
+    component="input"
+    placeholder="Type something..."
+  />
+));
 
 const SelectOption = React.forwardRef<
   any,
   { value: string; children: React.ReactNode }
->(({ value, ...props }, ref) => {
-  const { props: selectionProps, isActive } = useSelectionItem({ value });
-
-  return (
-    <li
-      role="option"
-      aria-selected={isActive}
-      {...props}
-      {...selectionProps}
-      ref={ref}
-      className="select-option"
-    />
-  );
-});
+>(({ value, ...props }, ref) => (
+  <SelectionItem
+    {...props}
+    component="li"
+    role="option"
+    value={value}
+    ref={ref}
+    className="select-option"
+  />
+));
 
 const SelectOptions = React.forwardRef<
   any,
   { children: React.ReactNode; className?: string; style?: React.CSSProperties }
->((props, ref) => {
-  const { props: selectionProps } = useSelectionItemsContainer({ ref });
-
-  return <ul role="listbox" {...props} {...selectionProps} />;
-});
+>((props, ref) => (
+  <SelectionItemsContainer role="listbox" {...props} ref={ref} />
+));
 
 const defaultOptions = [
   {

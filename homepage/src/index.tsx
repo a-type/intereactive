@@ -2,7 +2,7 @@ import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Select } from './Select';
-import { RovingTab } from './RovingTab';
+import { RovingTab } from './ToggleButtons';
 import TreeDemo from './Tree';
 import GridDemo from './Grid';
 import FlexGridDemo from './FlexGrid';

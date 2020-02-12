@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { RovingTabContainerProps } from '../../src/contexts/rovingTab';
 import {
-  useRow,
   useRovingTabItem,
   RovingTabContainer,
   keyActionPresets,
+  Row,
 } from '../../src';
 
-const TableRow: React.FC = props => {
-  const { props: rowProps } = useRow();
-
-  return <tr className="table-row" {...props} {...rowProps} />;
-};
+const TableRow = React.forwardRef<
+  HTMLTableRowElement,
+  React.HTMLAttributes<HTMLTableRowElement>
+>((props, ref) => {
+  return <Row className="table-row" component="tr" {...props} ref={ref} />;
+});
 
 const TableCell = React.forwardRef<
   HTMLTableDataCellElement,

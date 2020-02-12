@@ -7,6 +7,7 @@ import { useContext, useCallback } from 'react';
 import SelectionContext from '../contexts/selection';
 import { useIdOrGenerated } from '../internal/utils/ids';
 import { normalizeCoordinate } from '../internal/utils/indexing';
+
 export type SelectionItemOptions = {
   /**
    * Optionally supply a value represented by this

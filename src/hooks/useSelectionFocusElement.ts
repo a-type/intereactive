@@ -26,14 +26,14 @@ export type UseSelectionFocusElementOptions = {
 };
 
 export type UseSelectionFocusElementReturn = {
-  props: SelectionFocusElementProps;
+  props: SelectionFocusElementProvidedProps;
 };
 
 /**
  * A set of props which power a "focusable element" for a Selection system. Pass
  * them to the element you want to serve as the focusable element, like an `<input>`.
  */
-export type SelectionFocusElementProps = {
+export type SelectionFocusElementProvidedProps = {
   onKeyDown: KeyboardEventHandler<any>;
   ref: Ref<any>;
 };
@@ -74,7 +74,7 @@ export const useSelectionFocusElement = (
   const internalRef = useRef<HTMLElement>(null);
   const combinedRef = useCombinedRefs(internalRef, ref);
 
-  const props: SelectionFocusElementProps = {
+  const props: SelectionFocusElementProvidedProps = {
     onKeyDown: handleKeyDown,
     ref: combinedRef,
   };

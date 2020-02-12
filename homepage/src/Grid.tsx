@@ -1,10 +1,6 @@
 import * as React from 'react';
 import { RovingTabContainerProps } from '../../src/contexts/rovingTab';
-import {
-  useRovingTabItem,
-  RovingTabContainer,
-  keyActionPresets,
-} from '../../src';
+import { RovingTabContainer, keyActionPresets, RovingTabItem } from '../../src';
 
 const GridItem = React.forwardRef<
   HTMLButtonElement,
@@ -14,14 +10,19 @@ const GridItem = React.forwardRef<
     y: number;
   }
 >(({ value, x, y, ...rest }, ref) => {
-  const { props: itemProps } = useRovingTabItem({
-    value,
-    ref,
-    keyActions: keyActionPresets.grid.horizontal,
-    coordinate: [x, y],
-  });
+  const coordinate = React.useMemo<[number, number]>(() => [x, y], [x, y]);
 
-  return <button className="grid-item" {...rest} {...itemProps} />;
+  return (
+    <RovingTabItem
+      component="div"
+      className="grid-item"
+      {...rest}
+      ref={ref}
+      coordinate={coordinate}
+      value={value}
+      keyActions={keyActionPresets.grid.horizontal}
+    />
+  );
 });
 
 const Grid = React.forwardRef<HTMLDivElement, RovingTabContainerProps>(

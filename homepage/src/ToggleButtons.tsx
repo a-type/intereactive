@@ -1,10 +1,5 @@
 import * as React from 'react';
-import { useRovingTabItem, RovingTabContainer } from '../../src';
-
-const RovingTabItem = props => {
-  const { props: selectableProps } = useRovingTabItem(props);
-  return <button {...props} {...selectableProps} />;
-};
+import { RovingTabItem, RovingTabContainer } from '../../src';
 
 export const RovingTab = () => {
   const [selectedValue, setSelectedValue] = React.useState('in');
