@@ -60,6 +60,68 @@ export const resolveIndexLocation = (
   }
 };
 
+export const findNextEnabledIndex = (
+  file: DeepOrderingNode[],
+  index: number,
+  wrap: boolean
+) => {
+  let searchIndex = index + 1;
+  while (searchIndex < file.length) {
+    if (!file[searchIndex].disabled) {
+      return searchIndex;
+    }
+    searchIndex += 1;
+  }
+  if (!wrap) {
+    return index;
+  }
+  searchIndex = 0;
+  while (searchIndex < index) {
+    if (!file[searchIndex].disabled) {
+      return searchIndex;
+    }
+    searchIndex += 1;
+  }
+  return index;
+};
+
+export const findPreviousEnabledIndex = (
+  file: DeepOrderingNode[],
+  index: number,
+  wrap: boolean
+) => {
+  let searchIndex = index - 1;
+  while (searchIndex >= 0) {
+    if (!file[searchIndex].disabled) {
+      return searchIndex;
+    }
+    searchIndex -= 1;
+  }
+  if (!wrap) {
+    return index;
+  }
+  searchIndex = file.length - 1;
+  while (searchIndex > index) {
+    if (!file[searchIndex].disabled) {
+      return searchIndex;
+    }
+    searchIndex -= 1;
+  }
+  return index;
+};
+
+const fileIsAllDisabled = (file: DeepOrderingNode[] = []) =>
+  file.reduce(
+    (areAllDisabled, child) => areAllDisabled && child.disabled,
+    true
+  );
+
+type IndexOffset =
+  | 'previousOrthogonal'
+  | 'nextOrthogonal'
+  | 'previous'
+  | 'next';
+
 /**
  * Cycles a deep index to the next sibling. It's not possible to "escape"
  * a sibling group with a horizontal move like this. If there are a couple
@@ -69,7 +131,7 @@ export const resolveIndexLocation = (
 export const getOffsetDeepIndex = (
   currentIndex: DeepIndex,
   ordering: DeepOrderingNode,
-  [offsetX, offsetY]: [-1 | 0 | 1, -1 | 0 | 1],
+  offset: IndexOffset,
   wrap?: boolean
 ): DeepIndex => {
   const prefixIndices = currentIndex.slice(0, currentIndex.length - 1);
@@ -81,19 +143,45 @@ export const getOffsetDeepIndex = (
 
   const operantCurrentPosition = currentIndex[currentIndex.length - 1];
 
-  const operantYIndexValue = getOffsetIndex(
-    operantCurrentPosition[1],
-    parent.children.length,
-    offsetY,
-    wrap
-  );
-  const operantXIndexValue = getOffsetIndex(
-    operantCurrentPosition[0],
-    parent.children[operantYIndexValue].length,
-    offsetX,
-    wrap
-  );
-  return [...prefixIndices, [operantXIndexValue, operantYIndexValue]];
+  // scan the file (row | column) we are moving within to ensure
+  // there is at least one enabled item to move to
+  if (offset === 'next' || offset === 'previous') {
+    // row
+    const row = parent.children[operantCurrentPosition[1]];
+    if (fileIsAllDisabled(row)) {
+      // TODO: evaluate this behavior
+      // don't move
+      return currentIndex;
+    } else {
+      // move to the first enabled item after the current one
+      const fileIndex =
+        offset === 'next'
+          ? findNextEnabledIndex(row, operantCurrentPosition[0], !!wrap)
+          : findPreviousEnabledIndex(row, operantCurrentPosition[0], !!wrap);
+
+      return [...prefixIndices, [fileIndex, operantCurrentPosition[1]]];
+    }
+  } else {
+    // column
+    const columnIndex = operantCurrentPosition[0];
+    const column = parent.children.reduce(
+      (col, row) => (row[columnIndex] ? [...col, row[columnIndex]] : col),
+      []
+    );
+    if (fileIsAllDisabled(column)) {
+      // TODO: evaluate this behavior
+      // don't move
+      return currentIndex;
+    } else {
+      // move to the first enabled item after the current one
+      const fileIndex =
+        offset === 'nextOrthogonal'
+          ? findNextEnabledIndex(column, operantCurrentPosition[1], !!wrap)
+          : findPreviousEnabledIndex(column, operantCurrentPosition[1], !!wrap);
+
+      return [...prefixIndices, [operantCurrentPosition[0], fileIndex]];
+    }
+  }
 };
 
 /**
@@ -101,10 +189,22 @@ export const getOffsetDeepIndex = (
  * index. It is assumed that your index is valid within your nested
  * structure.
  */
-export const getUpwardDeepIndex = (currentIndex: DeepIndex): DeepIndex => {
+export const getUpwardDeepIndex = (
+  currentIndex: DeepIndex,
+  ordering: DeepOrderingNode
+): DeepIndex => {
   // don't go "up" to nothing
   if (currentIndex.length === 1) return currentIndex;
-  return currentIndex.slice(0, currentIndex.length - 1);
+
+  // TODO: evaluate this behavior
+  // if the parent is disabled, don't move
+  const upwardIndex = currentIndex.slice(0, currentIndex.length - 1);
+  const parent = resolveIndexLocation(ordering, upwardIndex);
+  if (!parent || parent.disabled) {
+    return currentIndex;
+  }
+
+  return upwardIndex;
 };
 
 /**
@@ -121,10 +221,23 @@ export const getDownwardDeepIndex = (
     throw new InvalidIndexError(currentIndex);
   }
 
-  if (!current.children.length) {
+  if (!current.children[0]) {
     return currentIndex;
   }
-  return [...currentIndex, [0, 0]];
+
+  // TODO: evaluate this behavior
+  // find the first enabled child to move to
+  if (fileIsAllDisabled(current.children[0])) {
+    return currentIndex;
+  }
+  const enabledChildIndex = findNextEnabledIndex(
+    current.children[0],
+    -1,
+    false
+  );
+
+  const downwardIndex: DeepIndex = [...currentIndex, [enabledChildIndex, 0]];
+  return downwardIndex;
 };
 
 /**

@@ -3,13 +3,17 @@ import { useRovingTabItem } from '../hooks/useRovingTabItem';
 import { KeyActions } from '../keyActions';
 import { OverridableProps } from '../internal/types';
 
-type RovingTabItemRenderPropFn = (params: { selected: boolean }) => JSX.Element;
+type RovingTabItemRenderPropFn = (params: {
+  selected: boolean;
+  disabled: boolean;
+}) => JSX.Element;
 type RovingTabItemProps = OverridableProps<
   {
     value?: string;
     coordinate?: number | [number, number];
     keyActions?: KeyActions;
     selectedProps?: { [prop: string]: any };
+    disabled?: boolean;
     children?: ReactNode | RovingTabItemRenderPropFn;
   },
   'button'
@@ -26,6 +30,7 @@ export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
       keyActions,
       selectedProps = defaultSelectedProps,
       children,
+      disabled,
       ...props
     },
     ref
@@ -35,6 +40,7 @@ export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
       ref,
       coordinate,
       keyActions,
+      disabled,
     });
 
     return (
@@ -42,9 +48,13 @@ export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
         {...(selected ? selectedProps : {})}
         {...props}
         {...containerProps}
+        disabled={disabled}
       >
         {typeof children === 'function'
-          ? (children as RovingTabItemRenderPropFn)({ selected })
+          ? (children as RovingTabItemRenderPropFn)({
+              selected,
+              disabled: !!disabled,
+            })
           : children}
       </CustomComponent>
     );

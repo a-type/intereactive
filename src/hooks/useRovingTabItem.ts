@@ -10,6 +10,7 @@ import RovingTabContext from '../contexts/rovingTab';
 import { getKeyboardAction } from '../internal/utils/keyboard';
 import { KeyActions, keyActionPresets, Action } from '../keyActions';
 import { normalizeCoordinate } from '../internal/utils/indexing';
+import { DISABLED_ATTRIBUTE } from '../internal/constants';
 import {
   KEY_DATA_ATTRIBUTE,
   VALUE_DATA_ATTRIBUTE,
@@ -41,6 +42,11 @@ export type UseRovingTabItemOptions<T extends HTMLElement = any> = {
    * up or left to go back, and down or right to go forward (flat.any preset)
    */
   keyActions?: KeyActions;
+  /**
+   * If disabled, this item will still exist within the selection navigation,
+   * but the user won't be able to select it.
+   */
+  disabled?: boolean;
 };
 
 /**
@@ -57,6 +63,7 @@ export const useRovingTabItem = <T extends HTMLElement>(
     ref,
     coordinate,
     keyActions = keyActionPresets.flat.any,
+    disabled,
   } = options;
   const {
     onSelect,
@@ -113,21 +120,20 @@ export const useRovingTabItem = <T extends HTMLElement>(
         event.preventDefault();
         event.stopPropagation();
       } else if (action === Action.Select) {
-        onSelect(key, value);
-        event.preventDefault();
-        event.stopPropagation();
+        if (!disabled) {
+          onSelect(key, value);
+          event.preventDefault();
+          event.stopPropagation();
+        }
       }
     },
-    [onSelect, key, value, goToNext, goToPrevious, keyActions]
+    [onSelect, key, value, goToNext, goToPrevious, keyActions, disabled]
   );
 
   const handleClick = useCallback(() => {
+    if (disabled) return;
     onSelect(key, value);
-  }, [onSelect, key, value]);
-
-  // const handleFocus = useCallback(() => {
-  //   onSelect(key, value);
-  // }, [onSelect, key, value]);
+  }, [onSelect, key, value, disabled]);
 
   const isSelected = selectedKey === key;
   const isTabbable = isSelected;
@@ -146,8 +152,10 @@ export const useRovingTabItem = <T extends HTMLElement>(
       [VALUE_DATA_ATTRIBUTE]: value,
       [X_INDEX_DATA_ATTRIBUTE]: manualXCoordinate,
       [Y_INDEX_DATA_ATTRIBUTE]: manualYCoordinate,
+      [DISABLED_ATTRIBUTE]: disabled,
       tabIndex: isTabbable ? 0 : -1,
     },
     selected: isSelected,
+    disabled,
   };
 };

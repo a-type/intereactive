@@ -13,7 +13,16 @@ import {
 } from './attributes';
 import { DeepOrderingNode, DeepIndex } from './types';
 import { isHtmlElement } from './guards';
-import { PARENT_CONTAINER_ATTRIBUTE, INITIAL_INDEX } from '../constants';
+import { isElementDisabled } from './attributes';
+import {
+  PARENT_CONTAINER_ATTRIBUTE,
+  INITIAL_INDEX,
+  KEY_DATA_ATTRIBUTE,
+  DISABLED_ATTRIBUTE,
+  X_INDEX_DATA_ATTRIBUTE,
+  Y_INDEX_DATA_ATTRIBUTE,
+  ROW_CONTAINER_ATTRIBUTE,
+} from '../constants';
 
 type ElementMap = {
   [key: string]: {
@@ -96,6 +105,7 @@ export const discoverOrderingStructure = (
 
       const newOrderingNode = {
         key,
+        disabled: isElementDisabled(node),
         children: [],
       };
 
@@ -147,6 +157,7 @@ export const useSelectableChildren = ({
   const [deepOrderingTree, setDeepOrderingTree] = useState<DeepOrderingNode>({
     key: null,
     children: [],
+    disabled: false,
   });
 
   const rescan = useCallback(
@@ -154,6 +165,7 @@ export const useSelectableChildren = ({
       const newOrdering: DeepOrderingNode = {
         key: null,
         children: [],
+        disabled: false,
       };
       const newElementMap: ElementMap = {};
 
@@ -166,25 +178,10 @@ export const useSelectableChildren = ({
       setDeepOrderingTree(newOrdering);
       elementKeyMapRef.current = newElementMap;
 
-      console.debug(
-        `Rescan selection update: old value is ${JSON.stringify(
-          selectionDeepIndex
-        )}`
-      );
       const newSelectedDeepIndex = getClosestValidDeepIndex(
         selectionDeepIndex,
         newOrdering
       );
-
-      console.debug(`
-      Rescan complete.
-
-      New Ordering:
-        ${JSON.stringify(newOrdering)}
-
-      New Selected Index:
-        ${JSON.stringify(newSelectedDeepIndex)}
-      `);
 
       setSelectionDeepIndex(newSelectedDeepIndex);
     },
@@ -192,11 +189,7 @@ export const useSelectableChildren = ({
   );
 
   // static reference to a mutation observer
-  const childObserverRef = useRef<MutationObserver | null>(
-    new MutationObserver(mutations => {
-      rescan(mutations[0].target as HTMLElement);
-    })
-  );
+  const childObserverRef = useRef<MutationObserver | null>(null);
 
   const internalContainerRef = useRef<HTMLElement | null>(null);
 
@@ -208,8 +201,20 @@ export const useSelectableChildren = ({
     });
     if (internalContainerRef.current) {
       childObserverRef.current.observe(internalContainerRef.current, {
+        // observe changes to child dom structure
         childList: true,
+        // observe the full subtree
         subtree: observeDeep,
+        // observe attribute changes...
+        attributes: true,
+        // ...for these attributes only
+        attributeFilter: [
+          KEY_DATA_ATTRIBUTE,
+          DISABLED_ATTRIBUTE,
+          X_INDEX_DATA_ATTRIBUTE,
+          Y_INDEX_DATA_ATTRIBUTE,
+          ROW_CONTAINER_ATTRIBUTE,
+        ],
       });
     }
     return () => {
@@ -299,31 +304,31 @@ export const useSelectableChildren = ({
 
   const goToNext = useCallback(() => {
     setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, [1, 0], wrap)
+      getOffsetDeepIndex(current, deepOrderingTree, 'next', wrap)
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToPrevious = useCallback(() => {
     setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, [-1, 0], wrap)
+      getOffsetDeepIndex(current, deepOrderingTree, 'previous', wrap)
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToNextOrthogonal = useCallback(() => {
     setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, [0, 1], wrap)
+      getOffsetDeepIndex(current, deepOrderingTree, 'nextOrthogonal', wrap)
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToPreviousOrthogonal = useCallback(() => {
     setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, [0, -1], wrap)
+      getOffsetDeepIndex(current, deepOrderingTree, 'previousOrthogonal', wrap)
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goUp = useCallback(() => {
-    setSelection(current => getUpwardDeepIndex(current));
-  }, [setSelection]);
+    setSelection(current => getUpwardDeepIndex(current, deepOrderingTree));
+  }, [setSelection, deepOrderingTree]);
 
   const goDown = useCallback(() => {
     setSelection(current => getDownwardDeepIndex(current, deepOrderingTree));

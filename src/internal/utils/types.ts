@@ -15,6 +15,10 @@ export type DeepOrderingNode = {
    */
   key: string | null;
   /**
+   * Whether the element should be skipped in ordering
+   */
+  disabled: boolean;
+  /**
    * Children are stored as a list of rows to create a 2d structure.
    * To index into children, use the Y index first to select the desired
    * row, then the X index to index into that row.

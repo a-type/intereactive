@@ -109,6 +109,14 @@ li:focus > .tree-label-selected {
   );
 }
 
+button:disabled,
+div[aria-disabled='true'],
+input:disabled,
+td[aria-disabled='true'],
+li[aria-disabled='true'] {
+  opacity: 0.2;
+}
+
 li:focus {
   outline: none;
 }

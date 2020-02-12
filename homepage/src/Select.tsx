@@ -28,6 +28,7 @@ const SelectOption = React.forwardRef<
     role="option"
     value={value}
     ref={ref}
+    disabled={value === '5'}
     className="select-option"
   />
 ));

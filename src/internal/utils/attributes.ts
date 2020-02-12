@@ -5,6 +5,7 @@ import {
   ROW_CONTAINER_ATTRIBUTE,
 } from '../constants';
 import { isHtmlElement } from './guards';
+import { DISABLED_ATTRIBUTE } from '../constants';
 
 export const getElementKey = (node: Node) => {
   if (isHtmlElement(node)) {
@@ -39,4 +40,9 @@ export const isElementRow = (node: Node) => {
     return null;
   }
   return node.hasAttribute(ROW_CONTAINER_ATTRIBUTE);
+};
+
+export const isElementDisabled = (node: Node) => {
+  if (!isHtmlElement(node)) return false;
+  return node.getAttribute(DISABLED_ATTRIBUTE) === 'true';
 };

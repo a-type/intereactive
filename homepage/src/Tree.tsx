@@ -5,6 +5,7 @@ type TreeItemProps = {
   value: string;
   label: React.ReactNode;
   children?: React.ReactNode;
+  disabled?: boolean;
 };
 
 const TreeItem = React.forwardRef<HTMLLIElement, TreeItemProps>(
@@ -44,9 +45,9 @@ const TreeDemo: React.FC = () => {
       <TreeItem value="one" label="One" />
       <TreeItem value="two" label="Two">
         <TreeItem value="two-a" label="Two A" />
-        <TreeItem value="two-b" label="Two B" />
+        <TreeItem value="two-b" label="Two B" disabled />
         <TreeItem value="two-c" label="Two C">
-          <TreeItem value="two-c-i" label="Two C i" />
+          <TreeItem value="two-c-i" label="Two C i" disabled />
           <TreeItem value="two-c-ii" label="Two C ii" />
         </TreeItem>
       </TreeItem>

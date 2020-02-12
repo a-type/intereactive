@@ -20,6 +20,7 @@ const GridItem = React.forwardRef<
       ref={ref}
       coordinate={coordinate}
       value={value}
+      disabled={value === '5'}
       keyActions={keyActionPresets.grid.horizontal}
     />
   );

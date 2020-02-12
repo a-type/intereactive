@@ -4,6 +4,7 @@ import {
   ROW_CONTAINER_ATTRIBUTE,
   X_INDEX_DATA_ATTRIBUTE,
   Y_INDEX_DATA_ATTRIBUTE,
+  DISABLED_ATTRIBUTE,
 } from '../../constants';
 import { discoverOrderingStructure } from '../selection';
 
@@ -22,7 +23,7 @@ describe('selection utils', () => {
               </div>
               <div ${KEY_DATA_ATTRIBUTE}="a-i-2"></div>
             </div>
-            <div ${KEY_DATA_ATTRIBUTE}="a-ii"></div>
+            <div ${KEY_DATA_ATTRIBUTE}="a-ii" ${DISABLED_ATTRIBUTE}></div>
           </div>
           <div>
             <div ${KEY_DATA_ATTRIBUTE}="b">
@@ -40,6 +41,7 @@ describe('selection utils', () => {
         const tree = {
           key: null,
           children: [],
+          disabled: false,
         };
         const elementMap: any = {};
         discoverOrderingStructure(tree, elementMap, html, {
@@ -59,22 +61,27 @@ describe('selection utils', () => {
                           {
                             children: [],
                             key: 'a-i-1',
+                            disabled: false,
                           },
                           {
                             children: [],
                             key: 'a-i-2',
+                            disabled: false,
                           },
                         ],
                       ],
                       key: 'a-i',
+                      disabled: false,
                     },
                     {
                       children: [],
                       key: 'a-ii',
+                      disabled: true,
                     },
                   ],
                 ],
                 key: 'a',
+                disabled: false,
               },
               {
                 children: [
@@ -82,14 +89,17 @@ describe('selection utils', () => {
                     {
                       children: [],
                       key: 'b-i',
+                      disabled: false,
                     },
                   ],
                 ],
                 key: 'b',
+                disabled: false,
               },
             ],
           ],
           key: null,
+          disabled: false,
         });
         expect(Object.keys(elementMap).sort()).toEqual([
           'a',
@@ -152,7 +162,7 @@ describe('selection utils', () => {
                 </div>
                 <div ${KEY_DATA_ATTRIBUTE}="b2">
                   <div>
-                    <div ${KEY_DATA_ATTRIBUTE}="b2-i"></div>
+                    <div ${KEY_DATA_ATTRIBUTE}="b2-i" ${DISABLED_ATTRIBUTE}></div>
                   </div>
                   <div ${KEY_DATA_ATTRIBUTE}="b2-ii"></div>
                 </div>
@@ -168,6 +178,7 @@ describe('selection utils', () => {
         const tree = {
           key: null,
           children: [],
+          disabled: false,
         };
         const elementMap: any = {};
         discoverOrderingStructure(tree, elementMap, html, {
@@ -177,22 +188,27 @@ describe('selection utils', () => {
         });
         expect(tree).toEqual({
           key: null,
+          disabled: false,
           children: [
             [
               {
                 key: 'a1',
+                disabled: false,
                 children: [
                   [
                     {
                       key: 'a1-i',
+                      disabled: false,
                       children: [
                         [
                           {
                             key: 'a1-i-1',
+                            disabled: false,
                             children: [],
                           },
                           {
                             key: 'a1-i-2',
+                            disabled: false,
                             children: [],
                           },
                         ],
@@ -200,20 +216,24 @@ describe('selection utils', () => {
                     },
                     {
                       key: 'a1-ii',
+                      disabled: false,
                       children: [],
                     },
                   ],
                   [
                     {
                       key: 'a1-j',
+                      disabled: false,
                       children: [],
                     },
                     {
                       key: 'a1-jj',
+                      disabled: false,
                       children: [
                         [
                           {
                             key: 'a1-jj-1',
+                            disabled: false,
                             children: [],
                           },
                         ],
@@ -223,6 +243,7 @@ describe('selection utils', () => {
                   [
                     {
                       key: 'a1-k',
+                      disabled: false,
                       children: [],
                     },
                   ],
@@ -230,14 +251,17 @@ describe('selection utils', () => {
               },
               {
                 key: 'a2',
+                disabled: false,
                 children: [
                   [
                     {
                       key: 'a2-i',
+                      disabled: false,
                       children: [
                         [
                           {
                             key: 'a2-i-1',
+                            disabled: false,
                             children: [],
                           },
                         ],
@@ -245,6 +269,7 @@ describe('selection utils', () => {
                     },
                     {
                       key: 'a2-ii',
+                      disabled: false,
                       children: [],
                     },
                   ],
@@ -254,10 +279,12 @@ describe('selection utils', () => {
             [
               {
                 key: 'b1',
+                disabled: false,
                 children: [
                   [
                     {
                       key: 'b1-i',
+                      disabled: false,
                       children: [],
                     },
                   ],
@@ -265,14 +292,17 @@ describe('selection utils', () => {
               },
               {
                 key: 'b2',
+                disabled: false,
                 children: [
                   [
                     {
                       key: 'b2-i',
+                      disabled: true,
                       children: [],
                     },
                     {
                       key: 'b2-ii',
+                      disabled: false,
                       children: [],
                     },
                   ],
@@ -349,6 +379,7 @@ describe('selection utils', () => {
         const tree = {
           key: null,
           children: [],
+          disabled: false,
         };
         const elementMap: any = {};
         discoverOrderingStructure(tree, elementMap, html, {
@@ -358,28 +389,34 @@ describe('selection utils', () => {
         });
         expect(tree).toEqual({
           key: null,
+          disabled: false,
           children: [
             [
               {
                 key: 'a1',
+                disabled: false,
                 children: [
                   [
                     {
                       key: 'a1-a1',
+                      disabled: false,
                       children: [],
                     },
                     {
                       key: 'a1-a2',
                       children: [],
+                      disabled: false,
                     },
                   ],
                   [
                     {
                       key: 'a1-b1',
+                      disabled: false,
                       children: [],
                     },
                     {
                       key: 'a1-b2',
+                      disabled: false,
                       children: [],
                     },
                   ],
@@ -387,6 +424,7 @@ describe('selection utils', () => {
               },
               {
                 key: 'a2',
+                disabled: false,
                 children: [],
               },
             ],
@@ -394,10 +432,12 @@ describe('selection utils', () => {
               undefined,
               {
                 key: 'b2',
+                disabled: false,
                 children: [],
               },
               {
                 key: 'b3',
+                disabled: false,
                 children: [],
               },
             ],
@@ -407,6 +447,7 @@ describe('selection utils', () => {
               undefined,
               {
                 key: 'c4',
+                disabled: false,
                 children: [],
               },
             ],
