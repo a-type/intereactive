@@ -1,16 +1,21 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, ReactNode } from 'react';
 import { useRovingTabItem } from '../hooks/useRovingTabItem';
 import { KeyActions } from '../keyActions';
 import { OverridableProps } from '../internal/types';
 
+type RovingTabItemRenderPropFn = (params: { selected: boolean }) => JSX.Element;
 type RovingTabItemProps = OverridableProps<
   {
     value?: string;
     coordinate?: number | [number, number];
     keyActions?: KeyActions;
+    selectedProps?: { [prop: string]: any };
+    children?: ReactNode | RovingTabItemRenderPropFn;
   },
   'button'
 >;
+
+const defaultSelectedProps = { 'aria-checked': true };
 
 export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
   (
@@ -19,6 +24,8 @@ export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
       value,
       coordinate,
       keyActions,
+      selectedProps = defaultSelectedProps,
+      children,
       ...props
     },
     ref
@@ -31,7 +38,15 @@ export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
     });
 
     return (
-      <CustomComponent aria-checked={selected} {...props} {...containerProps} />
+      <CustomComponent
+        {...(selected ? selectedProps : {})}
+        {...props}
+        {...containerProps}
+      >
+        {typeof children === 'function'
+          ? (children as RovingTabItemRenderPropFn)({ selected })
+          : children}
+      </CustomComponent>
     );
   }
 );

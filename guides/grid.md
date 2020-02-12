@@ -20,7 +20,26 @@ const Grid = forwardRef((props, ref) => {
 });
 ```
 
-So we've got a basic container element now. If you want something other than a `<div>`, you can use the `component` prop to change the implementation. By using the `RovingTabContainer`, we've created a system which will detect any children which will participate in the roving tab behavior. But first, we need to bind those children using the `useRovingTabItem` hook:
+So we've got a basic container element now. If you want something other than a `<div>`, you can use the `component` prop to change the implementation. By using the `RovingTabContainer`, we've created a system which will detect any children which will participate in the roving tab behavior. But first, we need to bind those children using either the `RovingTabItem` component, or the `useRovingTabItem` hook:
+
+**Using the component**
+
+```tsx
+import React, { forwardRef } from 'react';
+import { RovingTabItem, keyActionPresets } from 'interreactive';
+
+const GridItem = forwardRef(({ value, ...rest }, ref) => (
+  <RovingTabItem
+    component="button"
+    value={value}
+    ref={ref}
+    keyActions={keyActionPresets.grid.horizontal}
+    {...rest}
+  />
+));
+```
+
+**Using the hook**
 
 ```tsx
 import React, { forwardRef } from 'react';
@@ -42,7 +61,20 @@ Note that our button also accepts a `value` prop. This will indicate what value 
 
 We also must supply `keyActions` to `useRovingTabItem` to indicate the type of keyboard movement we want for the grid. The `grid.horizontal` preset will get us what we want - where "left" and "right" move horizontally in a row, and "up" and "down" switch between rows.
 
-To create our 2d grid structure, we need to delineate rows for our items to sit in. There's currently one way to do this: by wrapping them in elements tagged as rows in the roving tab system:
+To create our 2d grid structure, we need to delineate rows for our items to sit in. There's currently two ways to do this: by wrapping them in Row elements (tagged in the roving tab system), or by specifying exact grid coordinates for each item. To keep things simpler, we'll use the Rows. Like the items, you can either use a `Row` component or `useRow` hook:
+
+**Using the component**
+
+```tsx
+import React, { forwardRef } from 'react';
+import { Row } from 'interreactive';
+
+// you could also just use Row directly without wrapping it in your own
+// abstraction.
+const GridRow = forwardRef((props, ref) => <Row component="div" {...props} />);
+```
+
+**Using the hook**
 
 ```tsx
 import React, { forwardRef } from 'react';
@@ -55,7 +87,7 @@ const GridRow = forwardRef((props, ref) => {
 });
 ```
 
-This simple component uses the `useRow` hook to generate the required properties for our `<div>` to be considered a grid row.
+Either version simply adds some basic props which the roving tab system needs to identify rows of items.
 
 Now we can create rows of items in our grid:
 

@@ -16,8 +16,12 @@ const TreeItem = React.forwardRef<HTMLLIElement, TreeItemProps>(
       ref={ref}
       {...rest}
     >
-      <div className="tree-label">{label}</div>
-      {children && <ul>{children}</ul>}
+      {({ selected }) => (
+        <>
+          <div className={selected ? 'tree-label-selected' : ''}>{label}</div>
+          {children && <ul>{children}</ul>}
+        </>
+      )}
     </RovingTabItem>
   )
 );

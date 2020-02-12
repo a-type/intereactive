@@ -20,7 +20,25 @@ const ToggleButtonsControl = forwardRef((props, ref) => {
 });
 ```
 
-So we've got a basic container element now. If you want something other than a `<div>`, you can use the `component` prop to change the implementation. By using the `RovingTabContainer`, we've created a system which will detect any children which will participate in the roving tab behavior. But first, we need to bind those children using the `useRovingTabItem` hook:
+So we've got a basic container element now. If you want something other than a `<div>`, you can use the `component` prop to change the implementation. By using the `RovingTabContainer`, we've created a system which will detect any children which will participate in the roving tab behavior. But first, we need to bind those children using either the `RovingTabItem` component or the `useRovingTabItem` hook:
+
+**Using the component**
+
+```tsx
+import React, { forwardRef } from 'react';
+import { useRovingTabItem } from 'interreactive';
+
+const ToggleButton = forwardRef(({ value, ...rest }, ref) => (
+  <RovingTabItem
+    selectedProps={{ 'aria-checked': true }}
+    value={value}
+    ref={ref}
+    {...rest}
+  />
+));
+```
+
+**Using the hook**
 
 ```tsx
 import React, { forwardRef } from 'react';

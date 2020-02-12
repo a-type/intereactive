@@ -28,7 +28,32 @@ const Tree = forwardRef((props, ref) => {
 });
 ```
 
-So we've got a basic container element now. We're also overriding the `component` with `ul` to change the semantic implementation. By using the `RovingTabContainer`, we've created a system which will detect any children which will participate in the roving tab behavior. But first, we need to bind those children using the `useRovingTabItem` hook:
+So we've got a basic container element now. We're also overriding the `component` with `ul` to change the semantic implementation. By using the `RovingTabContainer`, we've created a system which will detect any children which will participate in the roving tab behavior. But first, we need to bind those children using either the `RovingTabItem` component or the `useRovingTabItem` hook:
+
+**Using the component**
+
+```tsx
+import React, { forwardRef } from 'react';
+import { RovingTabItem, keyActionPresets } from 'interreactive';
+
+const TreeItem = forwardRef(({ value, label, children, ...rest }, ref) => (
+  <RovingTabItem
+    value={value}
+    ref={ref}
+    keyActions={keyActionPresets.hierarchical.vertical}
+    {...rest}
+  >
+    {({ selected }) => (
+      <>
+        <div className={selected ? 'tree-label-selected' : ''}>{label}</div>
+        {children && <ul>{children}</ul>}
+      </>
+    )}
+  </RovingTabItem>
+));
+```
+
+**Using the hook**
 
 ```tsx
 import React, { forwardRef } from 'react';

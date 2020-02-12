@@ -19,10 +19,22 @@ const Select = () => {
 };
 ```
 
-Great, that's the start. This provider powers the Selection system, which will automatically detect your focusable element (your `<input>`, for instance), the options container, and the options themselves. But to help it do that, you'll need to wire up your components with hooks. Let's create the focusable input first.
+Great, that's the start. This provider powers the Selection system, which will automatically detect your focusable element (your `<input>`, for instance), the options container, and the options themselves. But to help it do that, you'll need to wire up your components with hooks. Let's create the focusable input first. We can either use the component version, or the hook version.
+
+**Using the component**
 
 ```tsx
-import React, { forwardRef, HTMLAttributes } from 'react';
+import React, { forwardRef } from 'react';
+import { SelectionFocusElement } from 'interreactive';
+
+const SelectInput = forwardRef(props, ref) => (
+  return <SelectionFocusElement component="input" placeholder="Search..." ref={ref} {...props} />);
+```
+
+**Using the hook**
+
+```tsx
+import React, { forwardRef } from 'react';
 import { useSelectionFocusElement } from 'interreactive';
 
 const SelectInput = forwardRef(props, ref) => {
@@ -32,7 +44,7 @@ const SelectInput = forwardRef(props, ref) => {
 };
 ```
 
-By passing the props we get from `useSelectionFocusElement`, we make our input discoverable to the Selection system as the primary, focusable, interactive element for our selection experience. For all other purposes, this is just a regular input. You are responsible for attaching `value` and `onChange` props, for instance, to respond to the user's typing and determine which options they can see. Or, if you don't want to allow searching, you could use a `<div>` instead. `interreactive` isn't opinionated about this.
+By using `SelectionFocusElement`, or passing the props we get from `useSelectionFocusElement`, we make our input discoverable to the Selection system as the primary, focusable, interactive element for our selection experience. For all other purposes, this is just a regular input. You are responsible for attaching `value` and `onChange` props, for instance, to respond to the user's typing and determine which options they can see. Or, if you don't want to allow searching, you could use a `<div>` instead. `interreactive` isn't opinionated about this.
 
 Now we can add our input to our Select. For this example, we'll wire up the input change events too, so that the user can type.
 
@@ -56,6 +68,32 @@ const Select = () => {
 ```
 
 Nothing special is happening yet. Let's make the options container and the options themselves. We'll model them as a `<ul>` with `<li>` components, attaching `role` and `aria-selected` attributes to indicate their usage as a list of options.
+
+**Using the components**
+
+```tsx
+import React from 'react';
+import { SelectionItem, SelectionItemsContainer } from 'interreactive';
+
+const SelectOption = forwardRef(({ value, ...props }, ref) =>
+  (
+    <SelectionItem
+      component="li"
+      role="option"
+      value={value}
+      selectedProps={{ 'aria-selected': true }}
+      ref={ref}
+      {...props}
+    />
+  )
+);
+
+const SelectOptions = forwardRef((props, ref) =>
+  return <SelectionItemsContainer component="ul" role="listbox" ref={ref} {...props} />
+);
+```
+
+**Using the hooks**
 
 ```tsx
 import React from 'react';
