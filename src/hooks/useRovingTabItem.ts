@@ -7,8 +7,8 @@ import {
   KeyboardEvent,
 } from 'react';
 import RovingTabContext from '../contexts/rovingTab';
-import { getKeyboardAction } from '../internal/utils/keyboard';
-import { KeyActions, keyActionPresets, Action } from '../keyActions';
+import { processKeyboardEvent } from '../internal/utils/keyboard';
+import { KeyActions, keyActionPresets } from '../keyActions';
 import { normalizeCoordinate } from '../internal/utils/indexing';
 import { DISABLED_ATTRIBUTE } from '../internal/constants';
 import {
@@ -91,43 +91,41 @@ export const useRovingTabItem = <T extends HTMLElement>(
     [elementRef, ref]
   );
 
+  // TODO: use event callback (ref style)
+  // to increase perf
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<any>) => {
-      const action = getKeyboardAction(keyActions, event.keyCode);
-
-      if (action === Action.GoNext) {
-        goToNext();
-        event.preventDefault();
-        event.stopPropagation();
-      } else if (action === Action.GoPrevious) {
-        goToPrevious();
-        event.preventDefault();
-        event.stopPropagation();
-      } else if (action === Action.GoUp) {
-        goUp();
-        event.preventDefault();
-        event.stopPropagation();
-      } else if (action === Action.GoDown) {
-        goDown();
-        event.preventDefault();
-        event.stopPropagation();
-      } else if (action === Action.GoNextOrthogonal) {
-        goToNextOrthogonal();
-        event.preventDefault();
-        event.stopPropagation();
-      } else if (action === Action.GoPreviousOrthogonal) {
-        goToPreviousOrthogonal();
-        event.preventDefault();
-        event.stopPropagation();
-      } else if (action === Action.Select) {
-        if (!disabled) {
-          onSelect(key, value);
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
+      processKeyboardEvent(
+        {
+          goToNext,
+          goToPrevious,
+          goToNextOrthogonal,
+          goToPreviousOrthogonal,
+          goUp,
+          goDown,
+          select: () => {
+            if (!disabled) {
+              onSelect(key, value);
+            }
+          },
+        },
+        keyActions,
+        event
+      );
     },
-    [onSelect, key, value, goToNext, goToPrevious, keyActions, disabled]
+    [
+      onSelect,
+      key,
+      value,
+      goToNext,
+      goToPrevious,
+      goToNextOrthogonal,
+      goToPreviousOrthogonal,
+      goUp,
+      goDown,
+      keyActions,
+      disabled,
+    ]
   );
 
   const handleClick = useCallback(() => {

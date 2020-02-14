@@ -1,5 +1,6 @@
 import { KeyActions, Action } from '../../keyActions';
 import { KeyCode } from '../types';
+import { KeyboardEvent } from 'react';
 
 export const getKeyboardAction = (keyActions: KeyActions, keyCode: KeyCode) => {
   switch (keyCode) {
@@ -18,4 +19,51 @@ export const getKeyboardAction = (keyActions: KeyActions, keyCode: KeyCode) => {
     default:
       return Action.DoNothing;
   }
+};
+
+export const processKeyboardEvent = (
+  implementations: {
+    goToNext: () => any;
+    goToPrevious: () => any;
+    goToNextOrthogonal: () => any;
+    goToPreviousOrthogonal: () => any;
+    goUp: () => any;
+    goDown: () => any;
+    select: () => any;
+  },
+  keyActions: KeyActions,
+  event: KeyboardEvent<any>
+) => {
+  const keyCode: KeyCode = event.keyCode;
+  const action = getKeyboardAction(keyActions, keyCode);
+  if (action === Action.DoNothing) {
+    return;
+  }
+
+  switch (action) {
+    case Action.GoDown:
+      implementations.goDown();
+      break;
+    case Action.GoUp:
+      implementations.goUp();
+      break;
+    case Action.GoNext:
+      implementations.goToNext();
+      break;
+    case Action.GoPrevious:
+      implementations.goToPrevious();
+      break;
+    case Action.GoNextOrthogonal:
+      implementations.goToNextOrthogonal();
+      break;
+    case Action.GoPreviousOrthogonal:
+      implementations.goToPreviousOrthogonal();
+      break;
+    case Action.Select:
+      implementations.select();
+      break;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
 };

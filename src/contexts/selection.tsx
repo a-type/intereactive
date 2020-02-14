@@ -6,6 +6,10 @@ export type SelectionContextValue = {
   onSelect: (value?: string) => any;
   goToNext: () => any;
   goToPrevious: () => any;
+  goToNextOrthogonal: () => any;
+  goToPreviousOrthogonal: () => any;
+  goDown: () => any;
+  goUp: () => any;
   selectedKey: string | null;
   containerRef: Ref<any>;
 };
@@ -14,6 +18,10 @@ const SelectionContext = createContext<SelectionContextValue>({
   onSelect: () => {},
   goToNext: () => {},
   goToPrevious: () => {},
+  goDown: () => {},
+  goUp: () => {},
+  goToNextOrthogonal: () => {},
+  goToPreviousOrthogonal: () => {},
   selectedKey: null,
   containerRef: null,
 });
@@ -46,7 +54,7 @@ export type SelectionProviderProps = {
    * When the user selects an item, its provided value will be passed to this
    * callback.
    */
-  onChange: (value: string) => any;
+  onChange?: (value: string) => any;
 };
 
 /**
@@ -73,6 +81,10 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
     setSelectionDeepIndex,
     goToNext,
     goToPrevious,
+    goDown,
+    goUp,
+    goToNextOrthogonal,
+    goToPreviousOrthogonal,
     findElementIndex,
     selectedKey,
     handleContainerElement,
@@ -91,6 +103,12 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
   // when the controlled value changes, update the selected index to match
   useEffect(() => {
     const idx = value ? findElementIndex(value) : INITIAL_INDEX;
+    if (!idx) {
+      console.warn(
+        `Value was updated to ${value}, but an element index could not be found`
+      );
+      return;
+    }
     setSelectionDeepIndex(idx);
   }, [value, findElementIndex, setSelectionDeepIndex]);
 
@@ -99,7 +117,7 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
     (value?: string) => {
       const resolvedValue = value || selectedKey;
       // TODO: check this code
-      resolvedValue && onChange(resolvedValue);
+      resolvedValue && onChange && onChange(resolvedValue);
     },
     [selectedKey, onChange]
   );
@@ -108,6 +126,10 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
     selectedKey,
     goToNext,
     goToPrevious,
+    goDown,
+    goUp,
+    goToNextOrthogonal,
+    goToPreviousOrthogonal,
     onSelect,
     containerRef,
   };

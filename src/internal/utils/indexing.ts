@@ -67,7 +67,7 @@ export const findNextEnabledIndex = (
 ) => {
   let searchIndex = index + 1;
   while (searchIndex < file.length) {
-    if (!file[searchIndex].disabled) {
+    if (file[searchIndex] && !file[searchIndex].disabled) {
       return searchIndex;
     }
     searchIndex += 1;
@@ -77,7 +77,7 @@ export const findNextEnabledIndex = (
   }
   searchIndex = 0;
   while (searchIndex < index) {
-    if (!file[searchIndex].disabled) {
+    if (file[searchIndex] && !file[searchIndex].disabled) {
       return searchIndex;
     }
     searchIndex += 1;
@@ -92,7 +92,7 @@ export const findPreviousEnabledIndex = (
 ) => {
   let searchIndex = index - 1;
   while (searchIndex >= 0) {
-    if (!file[searchIndex].disabled) {
+    if (file[searchIndex] && !file[searchIndex].disabled) {
       return searchIndex;
     }
     searchIndex -= 1;
@@ -102,7 +102,7 @@ export const findPreviousEnabledIndex = (
   }
   searchIndex = file.length - 1;
   while (searchIndex > index) {
-    if (!file[searchIndex].disabled) {
+    if (file[searchIndex] && !file[searchIndex].disabled) {
       return searchIndex;
     }
     searchIndex -= 1;
@@ -112,7 +112,7 @@ export const findPreviousEnabledIndex = (
 
 const fileIsAllDisabled = (file: DeepOrderingNode[] = []) =>
   file.reduce(
-    (areAllDisabled, child) => areAllDisabled && child.disabled,
+    (areAllDisabled, child) => areAllDisabled && (!child || child.disabled),
     true
   );
 
@@ -165,7 +165,7 @@ export const getOffsetDeepIndex = (
     // column
     const columnIndex = operantCurrentPosition[0];
     const column = parent.children.reduce(
-      (col, row) => (row[columnIndex] ? [...col, row[columnIndex]] : col),
+      (col, row) => [...col, row[columnIndex]],
       []
     );
     if (fileIsAllDisabled(column)) {
