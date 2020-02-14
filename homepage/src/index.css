@@ -225,6 +225,7 @@ table {
 
 .calendar-grid {
   width: auto;
+  margin-top: 8px;
 }
 
 .calendar-day {

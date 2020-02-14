@@ -59,6 +59,9 @@ export const processKeyboardEvent = (
     case Action.GoPreviousOrthogonal:
       implementations.goToPreviousOrthogonal();
       break;
+    case Action.Select:
+      implementations.select();
+      break;
   }
 
   event.preventDefault();
