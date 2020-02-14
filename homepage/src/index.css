@@ -216,3 +216,25 @@ table {
 .select-option[aria-selected='true'] {
   background: var(--focus-color-light);
 }
+
+.datepicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calendar-grid {
+  width: auto;
+}
+
+.calendar-day {
+  border: 1px solid var(--border-color);
+  width: 32px;
+  height: 32px;
+  margin: 0;
+}
+.calendar-day[aria-selected='true'] {
+  color: var(--focus-color);
+  border-color: var(--focus-color);
+  text-shadow: var(--focus-text-effect);
+}

@@ -7,6 +7,7 @@ import TreeDemo from './Tree';
 import GridDemo from './Grid';
 import FlexGridDemo from './FlexGrid';
 import TableDemo from './Table';
+import DatePickerDemo from './DatePicker';
 
 const App = () => {
   return (
@@ -63,6 +64,8 @@ const App = () => {
         <FlexGridDemo />
         <h3>table</h3>
         <TableDemo />
+        <h3>date picker</h3>
+        <DatePickerDemo />
       </section>
       <section>
         <a href="https://a-type.github.io/intereactive/lib">

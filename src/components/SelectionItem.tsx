@@ -6,11 +6,13 @@ type SelectionItemRenderPropFn = (params: {
   selected: boolean;
   disabled: boolean;
 }) => JSX.Element;
+
 export type SelectionItemProps = OverridableProps<
   {
     value?: string;
     selectedProps?: { [prop: string]: any };
     disabled?: boolean;
+    coordinate?: number | [number, number];
     children?: ReactNode | SelectionItemRenderPropFn;
   },
   'li'
@@ -28,6 +30,7 @@ export const SelectionItem = forwardRef<any, SelectionItemProps>(
       selectedProps = defaultSelectedProps,
       children,
       disabled,
+      coordinate,
       ...props
     },
     ref
@@ -35,6 +38,7 @@ export const SelectionItem = forwardRef<any, SelectionItemProps>(
     const { props: containerProps, selected } = useSelectionItem({
       value,
       disabled,
+      coordinate,
     });
 
     return (

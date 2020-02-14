@@ -67,7 +67,7 @@ export const findNextEnabledIndex = (
 ) => {
   let searchIndex = index + 1;
   while (searchIndex < file.length) {
-    if (!file[searchIndex].disabled) {
+    if (!file[searchIndex]?.disabled) {
       return searchIndex;
     }
     searchIndex += 1;
@@ -77,7 +77,7 @@ export const findNextEnabledIndex = (
   }
   searchIndex = 0;
   while (searchIndex < index) {
-    if (!file[searchIndex].disabled) {
+    if (!file[searchIndex]?.disabled) {
       return searchIndex;
     }
     searchIndex += 1;
@@ -92,7 +92,7 @@ export const findPreviousEnabledIndex = (
 ) => {
   let searchIndex = index - 1;
   while (searchIndex >= 0) {
-    if (!file[searchIndex].disabled) {
+    if (!file[searchIndex]?.disabled) {
       return searchIndex;
     }
     searchIndex -= 1;
@@ -102,7 +102,7 @@ export const findPreviousEnabledIndex = (
   }
   searchIndex = file.length - 1;
   while (searchIndex > index) {
-    if (!file[searchIndex].disabled) {
+    if (!file[searchIndex]?.disabled) {
       return searchIndex;
     }
     searchIndex -= 1;

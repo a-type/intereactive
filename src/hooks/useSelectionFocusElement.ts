@@ -7,9 +7,9 @@ import {
   KeyboardEventHandler,
 } from 'react';
 import SelectionContext from '../contexts/selection';
-import { keyActionPresets, Action } from '../keyActions';
+import { keyActionPresets, KeyActions } from '../keyActions';
 import { useCombinedRefs } from '../internal/utils/refs';
-import { getKeyboardAction } from '../internal/utils/keyboard';
+import { processKeyboardEvent } from '../internal/utils/keyboard';
 
 export type UseSelectionFocusElementOptions = {
   /**
@@ -23,6 +23,10 @@ export type UseSelectionFocusElementOptions = {
    * in here to merge it as a convenience with this hook's internal handler.
    */
   onKeyDown?: KeyboardEventHandler<any>;
+  /**
+   * Change how keyboard keys affect the selection interaction
+   */
+  keyActions?: KeyActions;
 };
 
 export type UseSelectionFocusElementReturn = {
@@ -50,25 +54,47 @@ export type SelectionFocusElementProvidedProps = {
 export const useSelectionFocusElement = (
   options: UseSelectionFocusElementOptions
 ): UseSelectionFocusElementReturn => {
-  const { ref, onKeyDown } = options;
-  const { goToNext, goToPrevious, onSelect } = useContext(SelectionContext);
+  const { ref, onKeyDown, keyActions = keyActionPresets.flat.any } = options;
+  const {
+    goToNext,
+    goToPrevious,
+    goDown,
+    goUp,
+    goToPreviousOrthogonal,
+    goToNextOrthogonal,
+    onSelect,
+  } = useContext(SelectionContext);
 
+  // TODO: use event callback (ref style)
+  // to increase perf
   const handleKeyDown = useCallback(
-    (ev: KeyboardEvent) => {
-      const action = getKeyboardAction(keyActionPresets.flat.any, ev.keyCode); // TODO: configurable axis
-      if (action === Action.GoNext) {
-        goToNext();
-        ev.preventDefault();
-      } else if (action === Action.GoPrevious) {
-        goToPrevious();
-        ev.preventDefault();
-      } else if (action === Action.Select) {
-        onSelect();
-        ev.preventDefault();
-      }
-      onKeyDown && onKeyDown(ev);
+    (event: KeyboardEvent<any>) => {
+      processKeyboardEvent(
+        {
+          goToNext,
+          goToPrevious,
+          goToNextOrthogonal,
+          goToPreviousOrthogonal,
+          goUp,
+          goDown,
+          select: onSelect,
+        },
+        keyActions,
+        event
+      );
+
+      onKeyDown && onKeyDown(event);
     },
-    [goToNext, goToPrevious, onSelect, onKeyDown]
+    [
+      onSelect,
+      goToNext,
+      goToPrevious,
+      goToNextOrthogonal,
+      goToPreviousOrthogonal,
+      goUp,
+      goDown,
+      keyActions,
+    ]
   );
 
   const internalRef = useRef<HTMLElement>(null);
