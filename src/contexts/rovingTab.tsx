@@ -42,7 +42,7 @@ export type RovingTabContainerProps = OverridableProps<
     noWrap?: boolean;
     observeDeep?: boolean;
     itemCount?: number;
-    value?: string;
+    value?: string | null;
     onChange?: (value: string) => any;
     /**
      * Disables the default behavior to scroll the selected element
