@@ -15,7 +15,7 @@
     "build:clean:cjs": "rimraf dist",
     "build:clean:esm": "rimraf dist-esm",
     "build:clean": "run-p build:clean:*",
-    "build:cjs": "tsc",
+    "build:cjs": "tsc --outDir dist",
     "build:esm": "tsc -m es6 --outDir dist-esm",
     "build": "run-s build:*",
     "test": "jest",
