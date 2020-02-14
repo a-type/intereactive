@@ -23,7 +23,7 @@ describe('selection utils', () => {
               </div>
               <div ${KEY_DATA_ATTRIBUTE}="a-i-2"></div>
             </div>
-            <div ${KEY_DATA_ATTRIBUTE}="a-ii" ${DISABLED_ATTRIBUTE}></div>
+            <div ${KEY_DATA_ATTRIBUTE}="a-ii" ${DISABLED_ATTRIBUTE}="true"></div>
           </div>
           <div>
             <div ${KEY_DATA_ATTRIBUTE}="b">
@@ -162,7 +162,7 @@ describe('selection utils', () => {
                 </div>
                 <div ${KEY_DATA_ATTRIBUTE}="b2">
                   <div>
-                    <div ${KEY_DATA_ATTRIBUTE}="b2-i" ${DISABLED_ATTRIBUTE}></div>
+                    <div ${KEY_DATA_ATTRIBUTE}="b2-i" ${DISABLED_ATTRIBUTE}="true"></div>
                   </div>
                   <div ${KEY_DATA_ATTRIBUTE}="b2-ii"></div>
                 </div>
