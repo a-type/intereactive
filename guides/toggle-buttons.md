@@ -6,7 +6,7 @@ First, pull in `<RovingTabContainer>`:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 // using forwardRef is just good practice.
 const ToggleButtonsControl = forwardRef((props, ref) => {
@@ -26,7 +26,7 @@ So we've got a basic container element now. If you want something other than a `
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { useRovingTabItem } from 'interreactive';
+import { useRovingTabItem } from 'intereactive';
 
 const ToggleButton = forwardRef(({ value, ...rest }, ref) => (
   <RovingTabItem
@@ -42,7 +42,7 @@ const ToggleButton = forwardRef(({ value, ...rest }, ref) => (
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { useRovingTabItem } from 'interreactive';
+import { useRovingTabItem } from 'intereactive';
 
 const ToggleButton = forwardRef(({ value, ...rest }, ref) => {
   const { props: tabItemProps } = useRovingTabItem({ value, ref });
@@ -57,7 +57,7 @@ Let's plug them in:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 const ToggleButtonsControl = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');
@@ -72,11 +72,11 @@ const ToggleButtonsControl = forwardRef((props, ref) => {
 });
 ```
 
-That was easy! One important fact about `interreactive` is that you don't _have_ to nest the `ToggleButton`s directly below the `RovingTabContainer`, or even on the same DOM level as each other! For instance, this still works:
+That was easy! One important fact about `intereactive` is that you don't _have_ to nest the `ToggleButton`s directly below the `RovingTabContainer`, or even on the same DOM level as each other! For instance, this still works:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 const ToggleButtonsControl = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');

@@ -1,4 +1,4 @@
-# interreactive
+# intereactive
 
 ![Logo image](media/logo.png)
 
@@ -10,7 +10,7 @@ This library provides a variety of tools which enable specific use cases:
 
 ### Select / Autocomplete / Combo Box
 
-`interreactive` can power Select-style components, giving you flexibility on DOM structure and implementation details. And you end up with a great semantic structure, free of render-prop noise:
+`intereactive` can power Select-style components, giving you flexibility on DOM structure and implementation details. And you end up with a great semantic structure, free of render-prop noise:
 
 ```tsx
 <SelectionProvider value={value} onChange={setValue}>

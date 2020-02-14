@@ -6,7 +6,7 @@ First, pull in `<SelectionProvider>`:
 
 ```tsx
 import React, { useState } from 'react';
-import { SelectionProvider } from 'interreactive';
+import { SelectionProvider } from 'intereactive';
 
 const Select = () => {
   const [value, setValue] = useState(null);
@@ -25,7 +25,7 @@ Great, that's the start. This provider powers the Selection system, which will a
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { SelectionFocusElement } from 'interreactive';
+import { SelectionFocusElement } from 'intereactive';
 
 const SelectInput = forwardRef(props, ref) => (
   return <SelectionFocusElement component="input" placeholder="Search..." ref={ref} {...props} />);
@@ -35,7 +35,7 @@ const SelectInput = forwardRef(props, ref) => (
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { useSelectionFocusElement } from 'interreactive';
+import { useSelectionFocusElement } from 'intereactive';
 
 const SelectInput = forwardRef(props, ref) => {
   const { props: selectionProps } = useSelectionFocusElement({ ref });
@@ -44,13 +44,13 @@ const SelectInput = forwardRef(props, ref) => {
 };
 ```
 
-By using `SelectionFocusElement`, or passing the props we get from `useSelectionFocusElement`, we make our input discoverable to the Selection system as the primary, focusable, interactive element for our selection experience. For all other purposes, this is just a regular input. You are responsible for attaching `value` and `onChange` props, for instance, to respond to the user's typing and determine which options they can see. Or, if you don't want to allow searching, you could use a `<div>` instead. `interreactive` isn't opinionated about this.
+By using `SelectionFocusElement`, or passing the props we get from `useSelectionFocusElement`, we make our input discoverable to the Selection system as the primary, focusable, interactive element for our selection experience. For all other purposes, this is just a regular input. You are responsible for attaching `value` and `onChange` props, for instance, to respond to the user's typing and determine which options they can see. Or, if you don't want to allow searching, you could use a `<div>` instead. `intereactive` isn't opinionated about this.
 
 Now we can add our input to our Select. For this example, we'll wire up the input change events too, so that the user can type.
 
 ```tsx
 import React, { useState } from 'react';
-import { SelectionProvider } from 'interreactive';
+import { SelectionProvider } from 'intereactive';
 
 const Select = () => {
   const [value, setValue] = useState(null);
@@ -73,7 +73,7 @@ Nothing special is happening yet. Let's make the options container and the optio
 
 ```tsx
 import React from 'react';
-import { SelectionItem, SelectionItemsContainer } from 'interreactive';
+import { SelectionItem, SelectionItemsContainer } from 'intereactive';
 
 const SelectOption = forwardRef(({ value, ...props }, ref) =>
   (
@@ -97,7 +97,7 @@ const SelectOptions = forwardRef((props, ref) =>
 
 ```tsx
 import React from 'react';
-import { useSelectionItem, useSelectionItemsContainer } from 'interreactive';
+import { useSelectionItem, useSelectionItemsContainer } from 'intereactive';
 
 const SelectOption = forwardRef(({ value, ...props }, ref) => {
   const { props: selectionProps, selected } = useSelectionItem({ value });
@@ -126,7 +126,7 @@ These components may make more sense when we plug them into our system:
 
 ```tsx
 import React, { useState, useMemo } from 'react';
-import { SelectionProvider } from 'interreactive';
+import { SelectionProvider } from 'intereactive';
 
 const options = ['Foo', 'Bar', 'Baz', 'Bop', 'Qux', 'Thud', 'Corge'];
 
@@ -158,13 +158,13 @@ const Select = () => {
 };
 ```
 
-We're close to a working demo! You can now focus the input and use arrow keys to select one of the options, or type to filter them down. The filtering, of course, is all done with _your_ code; `interreactive` isn't opinionated about how that happens.
+We're close to a working demo! You can now focus the input and use arrow keys to select one of the options, or type to filter them down. The filtering, of course, is all done with _your_ code; `intereactive` isn't opinionated about how that happens.
 
 One last thing: when you select a value, nothing happens. While we're storing it in state, we don't do anything with the new value when we get it. It's up to you what experience you want to create with this value. In a lot of cases, it makes sense to change the contents of the input to reflect the chosen value, so let's do that:
 
 ```tsx
 import React, { useState, useMemo, useCallback } from 'react';
-import { SelectionProvider } from 'interreactive';
+import { SelectionProvider } from 'intereactive';
 
 const options = ['Foo', 'Bar', 'Baz', 'Bop', 'Qux', 'Thud', 'Corge'];
 

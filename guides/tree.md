@@ -6,7 +6,7 @@ First, pull in `<RovingTabContainer>`:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 // using forwardRef is just good practice.
 const Tree = forwardRef((props, ref) => {
@@ -34,7 +34,7 @@ So we've got a basic container element now. We're also overriding the `component
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { RovingTabItem, keyActionPresets } from 'interreactive';
+import { RovingTabItem, keyActionPresets } from 'intereactive';
 
 const TreeItem = forwardRef(({ value, label, children, ...rest }, ref) => (
   <RovingTabItem
@@ -57,7 +57,7 @@ const TreeItem = forwardRef(({ value, label, children, ...rest }, ref) => (
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { useRovingTabItem, keyActionPresets } from 'interreactive';
+import { useRovingTabItem, keyActionPresets } from 'intereactive';
 
 const TreeItem = forwardRef(({ value, label, children, ...rest }, ref) => {
   const { props: rovingTabProps, selected } = useRovingTabItem({
@@ -83,7 +83,7 @@ Let's plug them in:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 const Tree = forwardRef((props, ref) => {
   const [value, setValue] = useState('one');
@@ -105,13 +105,13 @@ const Tree = forwardRef((props, ref) => {
 });
 ```
 
-That was easy! The magic is mostly invisible, but `interreactive` detects the nested structure of your items and automatically builds the navigation map for your content based on the underlying DOM structure.
+That was easy! The magic is mostly invisible, but `intereactive` detects the nested structure of your items and automatically builds the navigation map for your content based on the underlying DOM structure.
 
-One important fact about `interreactive` is that you don't _have_ to nest the `TreeItem`s directly below the `RovingTabContainer` or each other. For instance, this still works:
+One important fact about `intereactive` is that you don't _have_ to nest the `TreeItem`s directly below the `RovingTabContainer` or each other. For instance, this still works:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 const ToggleButtonsControl = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');

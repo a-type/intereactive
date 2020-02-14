@@ -6,7 +6,7 @@ First, pull in `<RovingTabContainer>`:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 // using forwardRef is just good practice.
 const Grid = forwardRef((props, ref) => {
@@ -26,7 +26,7 @@ So we've got a basic container element now. If you want something other than a `
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { RovingTabItem, keyActionPresets } from 'interreactive';
+import { RovingTabItem, keyActionPresets } from 'intereactive';
 
 const GridItem = forwardRef(({ value, ...rest }, ref) => (
   <RovingTabItem
@@ -43,7 +43,7 @@ const GridItem = forwardRef(({ value, ...rest }, ref) => (
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { useRovingTabItem, keyActionPresets } from 'interreactive';
+import { useRovingTabItem, keyActionPresets } from 'intereactive';
 
 const GridItem = forwardRef(({ value, ...rest }, ref) => {
   const { props: tabItemProps } = useRovingTabItem({
@@ -67,7 +67,7 @@ To create our 2d grid structure, we need to delineate rows for our items to sit 
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { Row } from 'interreactive';
+import { Row } from 'intereactive';
 
 // you could also just use Row directly without wrapping it in your own
 // abstraction.
@@ -78,7 +78,7 @@ const GridRow = forwardRef((props, ref) => <Row component="div" {...props} />);
 
 ```tsx
 import React, { forwardRef } from 'react';
-import { useRow } from 'interreactive';
+import { useRow } from 'intereactive';
 
 const GridRow = forwardRef((props, ref) => {
   const { props: rowProps } = useRow();
@@ -93,7 +93,7 @@ Now we can create rows of items in our grid:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 const Grid = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');
@@ -115,11 +115,11 @@ const Grid = forwardRef((props, ref) => {
 });
 ```
 
-That was easy! One important fact about `interreactive` is that you don't _have_ to nest the `GridRow`s directly below the `RovingTabContainer` or the `GridItem`s directly below the `GridRow`s. You have full flexibility in DOM nesting. For instance, this is valid:
+That was easy! One important fact about `intereactive` is that you don't _have_ to nest the `GridRow`s directly below the `RovingTabContainer` or the `GridItem`s directly below the `GridRow`s. You have full flexibility in DOM nesting. For instance, this is valid:
 
 ```tsx
 import React, { useState, forwardRef, HTMLAttributes } from 'react';
-import { RovingTabContainer } from 'interreactive';
+import { RovingTabContainer } from 'intereactive';
 
 const GridItemsControl = forwardRef((props, ref) => {
   const [value, setValue] = useState('a');
