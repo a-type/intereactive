@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RovingTabItem, RovingTabContainer } from '../../src';
 
 export const RovingTab = () => {
-  const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
+  const [selectedValue, setSelectedValue] = React.useState<string | null>('in');
 
   return (
     <RovingTabContainer

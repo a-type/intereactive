@@ -85,7 +85,7 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
     goUp,
     goToNextOrthogonal,
     goToPreviousOrthogonal,
-    findElementIndex,
+    getElementInfo,
     selectedKey,
     handleContainerElement,
   } = useSelectableChildren({
@@ -102,15 +102,19 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
 
   // when the controlled value changes, update the selected index to match
   useEffect(() => {
-    const idx = value ? findElementIndex(value) : INITIAL_INDEX;
-    if (!idx) {
+    if (!value) {
+      setSelectionDeepIndex(INITIAL_INDEX);
+      return;
+    }
+    const info = getElementInfo(value);
+    if (value && !info) {
       console.warn(
         `Value was updated to ${value}, but an element index could not be found`
       );
       return;
     }
-    setSelectionDeepIndex(idx);
-  }, [value, findElementIndex, setSelectionDeepIndex]);
+    setSelectionDeepIndex(info.index);
+  }, [value, getElementInfo, setSelectionDeepIndex]);
 
   /** either selects the provided value, or the current chosen value */
   const onSelect = useCallback(

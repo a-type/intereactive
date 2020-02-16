@@ -137,18 +137,14 @@ export const useSelectableChildren = ({
   wrap,
   crossContainerBoundaries,
   initialSelectedIndex = INITIAL_INDEX,
-  onSelect,
+  onMove,
 }: {
   observeDeep?: boolean;
   itemCount?: number;
   wrap?: boolean;
   crossContainerBoundaries?: boolean;
   initialSelectedIndex?: DeepIndex;
-  onSelect?: (
-    element: HTMLElement | null,
-    key: string,
-    index: DeepIndex
-  ) => void;
+  onMove?: (element: HTMLElement | null, key: string, index: DeepIndex) => void;
 } = {}) => {
   const elementKeyMapRef = useRef<ElementMap>({});
   const [selectionDeepIndex, setSelectionDeepIndex] = useState<DeepIndex>(
@@ -248,6 +244,11 @@ export const useSelectableChildren = ({
     [elementKeyMapRef]
   );
 
+  const getElementInfo = useCallback(
+    (searchKey: string) => elementKeyMapRef.current[searchKey],
+    [elementKeyMapRef]
+  );
+
   const getKeyFromIndex = useCallback(
     (index: DeepIndex) => {
       const orderingNode = resolveIndexLocation(deepOrderingTree, index);
@@ -268,7 +269,10 @@ export const useSelectableChildren = ({
   );
 
   const setSelection = useCallback(
-    (indexOrUpdater: DeepIndex | ((current: DeepIndex) => DeepIndex)) => {
+    (
+      indexOrUpdater: DeepIndex | ((current: DeepIndex) => DeepIndex),
+      isMove?: boolean
+    ) => {
       if (indexOrUpdater === null) debugger;
       // FIXME: evaluate if a setter fn with side-effects is a terrible idea
       setSelectionDeepIndex(current => {
@@ -289,12 +293,14 @@ export const useSelectableChildren = ({
           return index;
         }
         const lookup = elementKeyMapRef.current[orderingNode.key];
-        onSelect && onSelect(lookup.element, orderingNode.key, index);
+        if (isMove) {
+          onMove && onMove(lookup.element, orderingNode.key, index);
+        }
 
         return index;
       });
     },
-    [deepOrderingTree, elementKeyMapRef, onSelect]
+    [deepOrderingTree, elementKeyMapRef, onMove]
   );
 
   const finalItemCount =
@@ -303,35 +309,53 @@ export const useSelectableChildren = ({
       : Object.keys(elementKeyMapRef.current || {}).length;
 
   const goToNext = useCallback(() => {
-    setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, 'next', wrap)
+    setSelection(
+      current => getOffsetDeepIndex(current, deepOrderingTree, 'next', wrap),
+      true
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToPrevious = useCallback(() => {
-    setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, 'previous', wrap)
+    setSelection(
+      current =>
+        getOffsetDeepIndex(current, deepOrderingTree, 'previous', wrap),
+      true
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToNextOrthogonal = useCallback(() => {
-    setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, 'nextOrthogonal', wrap)
+    setSelection(
+      current =>
+        getOffsetDeepIndex(current, deepOrderingTree, 'nextOrthogonal', wrap),
+      true
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goToPreviousOrthogonal = useCallback(() => {
-    setSelection(current =>
-      getOffsetDeepIndex(current, deepOrderingTree, 'previousOrthogonal', wrap)
+    setSelection(
+      current =>
+        getOffsetDeepIndex(
+          current,
+          deepOrderingTree,
+          'previousOrthogonal',
+          wrap
+        ),
+      true
     );
   }, [setSelection, deepOrderingTree, wrap]);
 
   const goUp = useCallback(() => {
-    setSelection(current => getUpwardDeepIndex(current, deepOrderingTree));
+    setSelection(
+      current => getUpwardDeepIndex(current, deepOrderingTree),
+      true
+    );
   }, [setSelection, deepOrderingTree]);
 
   const goDown = useCallback(() => {
-    setSelection(current => getDownwardDeepIndex(current, deepOrderingTree));
+    setSelection(
+      current => getDownwardDeepIndex(current, deepOrderingTree),
+      true
+    );
   }, [setSelection, deepOrderingTree]);
 
   // lookup the selected item key based on the index
@@ -354,5 +378,6 @@ export const useSelectableChildren = ({
     goDown,
     setSelectionDeepIndex: setSelection,
     selectedKey,
+    getElementInfo,
   };
 };

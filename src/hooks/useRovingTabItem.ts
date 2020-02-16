@@ -1,16 +1,10 @@
-import {
-  useContext,
-  useRef,
-  Ref,
-  MutableRefObject,
-  useCallback,
-  KeyboardEvent,
-} from 'react';
+import { useContext, useRef, Ref, useCallback, KeyboardEvent } from 'react';
 import RovingTabContext from '../contexts/rovingTab';
 import { processKeyboardEvent } from '../internal/utils/keyboard';
 import { KeyActions, keyActionPresets } from '../keyActions';
 import { normalizeCoordinate } from '../internal/utils/indexing';
 import { DISABLED_ATTRIBUTE } from '../internal/constants';
+import { useCombinedRefs } from '../internal/utils/refs';
 import {
   KEY_DATA_ATTRIBUTE,
   VALUE_DATA_ATTRIBUTE,
@@ -79,17 +73,7 @@ export const useRovingTabItem = <T extends HTMLElement>(
     value || `suggestion-${Math.floor(Math.random() * 10000000000)}`
   );
   const elementRef = useRef<T | null>(null);
-  const combinedRef = useCallback(
-    (el: T) => {
-      elementRef.current = el;
-      if (typeof ref === 'function') {
-        ref(el);
-      } else if (ref) {
-        (ref as MutableRefObject<any>).current = el;
-      }
-    },
-    [elementRef, ref]
-  );
+  const combinedRef = useCombinedRefs(elementRef, ref);
 
   // TODO: use event callback (ref style)
   // to increase perf

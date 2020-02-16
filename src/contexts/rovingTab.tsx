@@ -8,7 +8,6 @@ import { PARENT_CONTAINER_ATTRIBUTE } from '../internal/constants';
 import { useIdOrGenerated } from '../internal/utils/ids';
 import { useSelectableChildren } from '../internal/utils/selection';
 import { useCombinedRefs } from '../internal/utils/refs';
-import { DeepIndex } from '../internal/utils/types';
 import { OverridableProps } from '../internal/types';
 
 export type RovingTabContextValue = {
@@ -70,34 +69,11 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
   ) => {
     const id = useIdOrGenerated(rest.id);
 
-    const handleSelection = useCallback(
-      (element: HTMLElement | null, key: string, index: DeepIndex) => {
-        if (index.length === 0) return;
-
-        console.debug(
-          `Handling selection of ${element}, key: ${key}, idx: ${JSON.stringify(
-            index
-          )}`
-        );
-
-        if (element) {
-          element.focus();
-          if (!disableScrollIntoView) {
-            element.scrollIntoView({
-              block: 'nearest',
-              behavior: 'smooth',
-            });
-          }
-        } else {
-          console.warn(
-            `Selection moved to element with key ${key} (index: ${JSON.stringify(
-              index
-            )}), but no DOM element was registered to focus (group: ${id})`
-          );
-        }
-      },
-      [disableScrollIntoView, id]
-    );
+    const handleMove = useCallback((element: HTMLElement | null) => {
+      if (element) {
+        element.focus();
+      }
+    }, []);
 
     const {
       selectedKey,
@@ -108,13 +84,13 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
       goDown,
       goToNextOrthogonal,
       goToPreviousOrthogonal,
-      findElementIndex,
+      getElementInfo,
       handleContainerElement,
     } = useSelectableChildren({
       observeDeep,
       itemCount,
       wrap: !noWrap,
-      onSelect: handleSelection,
+      onMove: handleMove,
     });
 
     // ref to the top level container element
@@ -127,30 +103,40 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
     // combined with user ref, if provided
     const finalRef = useCombinedRefs(containerRef, ref);
 
-    // when the controlled value changes, update the selected index to match
     useEffect(() => {
       if (value) {
-        console.debug(
-          `Auto updating selection for value change: value: ${value}, group: ${id}`
-        );
-        const index = findElementIndex(value);
-        if (!index) {
+        const info = getElementInfo(value);
+        if (!info) {
           console.warn(
             `Value of roving tab group ${id} was updated to ${value}, but no element index was found`
           );
+          return;
         }
-        setSelectionDeepIndex(index || []);
+
+        // update selection state, but don't focus the element
+        setSelectionDeepIndex(info.index || []);
       }
-    }, [value, findElementIndex, setSelectionDeepIndex]);
+    }, [value, getElementInfo, setSelectionDeepIndex]);
 
     // when the user selects an item, force update the selected index
     // TODO: move this behavior to a focus handler in the hook?
     const onSelect = useCallback(
       (key: string, value?: any) => {
-        setSelectionDeepIndex(findElementIndex(key));
+        const info = getElementInfo(key);
+        if (!info) {
+          console.warn(
+            `Roving tab group ${id} selected ${key}, but the associated element wasn't found in the element map`
+          );
+          return;
+        }
+
+        // update selection state and focus new element
+        setSelectionDeepIndex(info.index);
+        info.element.focus();
+
         onChange && onChange(value);
       },
-      [setSelectionDeepIndex, findElementIndex, onChange]
+      [setSelectionDeepIndex, getElementInfo, onChange]
     );
 
     const contextValue: RovingTabContextValue = {

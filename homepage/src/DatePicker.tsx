@@ -90,7 +90,6 @@ export default DatePickerDemo;
  */
 const getMonthWeeks = (year: number, month: number) => {
   const date = new Date(year, month, 1);
-  console.debug(date, year, month);
 
   // first, since we accept any number for month, we grab and store the 'resolved'
   // values. For instance, if the user passes month=15, after we've put it in a date
