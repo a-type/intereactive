@@ -5,9 +5,10 @@ import {
 } from '../internal/constants';
 import { useContext, useCallback } from 'react';
 import SelectionContext from '../contexts/selection';
-import { useIdOrGenerated } from '../internal/utils/ids';
+import { useIdOrGenerated, getSelectionItemId } from '../internal/utils/ids';
 import { normalizeCoordinate } from '../internal/utils/indexing';
 import { DISABLED_ATTRIBUTE } from '../internal/constants';
+import { GenericProps } from '../internal/types';
 
 export type SelectionItemOptions = {
   /**
@@ -26,16 +27,32 @@ export type SelectionItemOptions = {
    * but the user won't be able to select it.
    */
   disabled?: boolean;
+  /**
+   * Props which will be supplied to the element when it is active -
+   * i.e. when the user is highlighting it. By default no props
+   * are provided for this state.
+   */
+  activeProps?: GenericProps;
+  /**
+   * Props which will be supplied to the element when it is selected -
+   * i.e. when the current value of the control matches this option. By
+   * default ARIA attributes will be supplied
+   */
+  selectedProps?: GenericProps;
 };
 
 export const useSelectionItem = ({
   value,
   coordinate,
   disabled,
+  selectedProps,
+  activeProps,
 }: SelectionItemOptions) => {
   const key = useIdOrGenerated(value, 'selection-item');
 
-  const { onSelect, selectedKey } = useContext(SelectionContext);
+  const { onSelect, activeKey, selectedKey, id: groupId } = useContext(
+    SelectionContext
+  );
 
   const handleClick = useCallback(() => {
     if (disabled) return;
@@ -46,13 +63,24 @@ export const useSelectionItem = ({
     coordinate
   );
 
+  const selected = selectedKey === key;
+  const active = activeKey === key;
+
   const props = {
     [KEY_DATA_ATTRIBUTE]: key,
     [X_INDEX_DATA_ATTRIBUTE]: manualXCoordinate,
     [Y_INDEX_DATA_ATTRIBUTE]: manualYCoordinate,
     [DISABLED_ATTRIBUTE]: disabled,
     onClick: handleClick,
+    id: getSelectionItemId(groupId, key),
+    ...(selected ? selectedProps : {}),
+    ...(active ? activeProps : {}),
   };
 
-  return { props, selected: selectedKey === key, disabled };
+  return {
+    props,
+    active,
+    selected,
+    disabled,
+  };
 };

@@ -10,6 +10,10 @@ import SelectionContext from '../contexts/selection';
 import { keyActionPresets, KeyActions } from '../keyActions';
 import { useCombinedRefs } from '../internal/utils/refs';
 import { processKeyboardEvent } from '../internal/utils/keyboard';
+import {
+  getSelectFocusElementId,
+  getSelectItemsGroupId,
+} from '../internal/utils/ids';
 
 export type UseSelectionFocusElementOptions = {
   /**
@@ -27,6 +31,10 @@ export type UseSelectionFocusElementOptions = {
    * Change how keyboard keys affect the selection interaction
    */
   keyActions?: KeyActions;
+  /**
+   * Optionally override the element ID
+   */
+  id?: string;
 };
 
 export type UseSelectionFocusElementReturn = {
@@ -40,6 +48,8 @@ export type UseSelectionFocusElementReturn = {
 export type SelectionFocusElementProvidedProps = {
   onKeyDown: KeyboardEventHandler<any>;
   ref: Ref<any>;
+  id: string;
+  'aria-controls': string;
 };
 
 /**
@@ -54,7 +64,12 @@ export type SelectionFocusElementProvidedProps = {
 export const useSelectionFocusElement = (
   options: UseSelectionFocusElementOptions
 ): UseSelectionFocusElementReturn => {
-  const { ref, onKeyDown, keyActions = keyActionPresets.flat.any } = options;
+  const {
+    ref,
+    onKeyDown,
+    keyActions = keyActionPresets.flat.any,
+    id,
+  } = options;
   const {
     goToNext,
     goToPrevious,
@@ -63,6 +78,7 @@ export const useSelectionFocusElement = (
     goToPreviousOrthogonal,
     goToNextOrthogonal,
     onSelect,
+    id: groupId,
   } = useContext(SelectionContext);
 
   // TODO: use event callback (ref style)
@@ -103,6 +119,8 @@ export const useSelectionFocusElement = (
   const props: SelectionFocusElementProvidedProps = {
     onKeyDown: handleKeyDown,
     ref: combinedRef,
+    id: id || getSelectFocusElementId(groupId),
+    'aria-controls': getSelectItemsGroupId(groupId),
   };
 
   return { props };

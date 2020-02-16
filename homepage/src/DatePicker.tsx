@@ -16,6 +16,7 @@ const Day = React.forwardRef<
     className="calendar-day"
     component="div"
     coordinate={[weekDay, week]}
+    activeProps={{ className: 'calendar-day generic-active' }}
     ref={ref}
     style={{
       gridColumn: `${weekDay + 1} / span 1`,

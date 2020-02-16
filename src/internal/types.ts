@@ -28,3 +28,5 @@ export type OverridableProps<P, D extends ElementType> = P &
         [propType: string]: any;
       }
   );
+
+export type GenericProps = { [prop: string]: any };

@@ -5,12 +5,14 @@ import { OverridableProps } from '../internal/types';
 type SelectionItemRenderPropFn = (params: {
   selected: boolean;
   disabled: boolean;
+  active: boolean;
 }) => JSX.Element;
 
 export type SelectionItemProps = OverridableProps<
   {
     value?: string;
     selectedProps?: { [prop: string]: any };
+    activeProps?: { [prop: string]: any };
     disabled?: boolean;
     coordinate?: number | [number, number];
     children?: ReactNode | SelectionItemRenderPropFn;
@@ -18,16 +20,13 @@ export type SelectionItemProps = OverridableProps<
   'li'
 >;
 
-const defaultSelectedProps = {
-  'aria-selected': true,
-};
-
 export const SelectionItem = forwardRef<any, SelectionItemProps>(
   (
     {
       component: CustomComponent = 'li',
       value,
-      selectedProps = defaultSelectedProps,
+      selectedProps,
+      activeProps,
       children,
       disabled,
       coordinate,
@@ -35,16 +34,17 @@ export const SelectionItem = forwardRef<any, SelectionItemProps>(
     },
     ref
   ) => {
-    const { props: containerProps, selected } = useSelectionItem({
+    const { props: containerProps, selected, active } = useSelectionItem({
       value,
       disabled,
       coordinate,
+      selectedProps,
+      activeProps,
     });
 
     return (
       <CustomComponent
         ref={ref}
-        {...(selected ? selectedProps : {})}
         {...props}
         {...containerProps}
         disabled={disabled}
@@ -52,6 +52,7 @@ export const SelectionItem = forwardRef<any, SelectionItemProps>(
         {typeof children === 'function'
           ? (children as SelectionItemRenderPropFn)({
               selected,
+              active,
               disabled: !!disabled,
             })
           : children}

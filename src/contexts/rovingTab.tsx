@@ -18,6 +18,7 @@ export type RovingTabContextValue = {
   goToPreviousOrthogonal: () => any;
   goUp: () => any;
   goDown: () => any;
+  activeKey: string | null;
   selectedKey: string | null;
   id: string | null;
 };
@@ -30,6 +31,7 @@ const RovingTabContext = createContext<RovingTabContextValue>({
   goToPreviousOrthogonal: () => {},
   goUp: () => {},
   goDown: () => {},
+  activeKey: null,
   selectedKey: null,
   id: null,
 });
@@ -76,8 +78,7 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
     }, []);
 
     const {
-      selectedKey,
-      setSelectionDeepIndex,
+      activeKey,
       goToNext,
       goToPrevious,
       goUp,
@@ -86,6 +87,7 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
       goToPreviousOrthogonal,
       getElementInfo,
       handleContainerElement,
+      setActiveIndex,
     } = useSelectableChildren({
       observeDeep,
       itemCount,
@@ -114,9 +116,9 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
         }
 
         // update selection state, but don't focus the element
-        setSelectionDeepIndex(info.index || []);
+        setActiveIndex(info.index || []);
       }
-    }, [value, getElementInfo, setSelectionDeepIndex]);
+    }, [value, getElementInfo, setActiveIndex]);
 
     // when the user selects an item, force update the selected index
     // TODO: move this behavior to a focus handler in the hook?
@@ -131,17 +133,18 @@ export const RovingTabContainer = forwardRef<any, RovingTabContainerProps>(
         }
 
         // update selection state and focus new element
-        setSelectionDeepIndex(info.index);
+        setActiveIndex(info.index);
         info.element.focus();
 
         onChange && onChange(value);
       },
-      [setSelectionDeepIndex, getElementInfo, onChange]
+      [setActiveIndex, getElementInfo, onChange]
     );
 
     const contextValue: RovingTabContextValue = {
       onSelect,
-      selectedKey,
+      activeKey,
+      selectedKey: value || null,
       goToNext,
       goToPrevious,
       goUp,

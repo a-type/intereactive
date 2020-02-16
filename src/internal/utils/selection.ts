@@ -147,7 +147,7 @@ export const useSelectableChildren = ({
   onMove?: (element: HTMLElement | null, key: string, index: DeepIndex) => void;
 } = {}) => {
   const elementKeyMapRef = useRef<ElementMap>({});
-  const [selectionDeepIndex, setSelectionDeepIndex] = useState<DeepIndex>(
+  const [activeDeepIndex, setActiveDeepIndex] = useState<DeepIndex>(
     initialSelectedIndex
   );
   const [deepOrderingTree, setDeepOrderingTree] = useState<DeepOrderingNode>({
@@ -175,13 +175,13 @@ export const useSelectableChildren = ({
       elementKeyMapRef.current = newElementMap;
 
       const newSelectedDeepIndex = getClosestValidDeepIndex(
-        selectionDeepIndex,
+        activeDeepIndex,
         newOrdering
       );
 
-      setSelectionDeepIndex(newSelectedDeepIndex);
+      setActiveDeepIndex(newSelectedDeepIndex);
     },
-    [selectionDeepIndex, setSelectionDeepIndex, setDeepOrderingTree]
+    [activeDeepIndex, setActiveDeepIndex, setDeepOrderingTree]
   );
 
   // static reference to a mutation observer
@@ -268,14 +268,14 @@ export const useSelectableChildren = ({
     [getKeyFromIndex, elementKeyMapRef]
   );
 
-  const setSelection = useCallback(
+  const setActiveIndex = useCallback(
     (
       indexOrUpdater: DeepIndex | ((current: DeepIndex) => DeepIndex),
       isMove?: boolean
     ) => {
       if (indexOrUpdater === null) debugger;
       // FIXME: evaluate if a setter fn with side-effects is a terrible idea
-      setSelectionDeepIndex(current => {
+      setActiveDeepIndex(current => {
         const index =
           typeof indexOrUpdater === 'function'
             ? indexOrUpdater(current)
@@ -309,30 +309,30 @@ export const useSelectableChildren = ({
       : Object.keys(elementKeyMapRef.current || {}).length;
 
   const goToNext = useCallback(() => {
-    setSelection(
+    setActiveIndex(
       current => getOffsetDeepIndex(current, deepOrderingTree, 'next', wrap),
       true
     );
-  }, [setSelection, deepOrderingTree, wrap]);
+  }, [setActiveIndex, deepOrderingTree, wrap]);
 
   const goToPrevious = useCallback(() => {
-    setSelection(
+    setActiveIndex(
       current =>
         getOffsetDeepIndex(current, deepOrderingTree, 'previous', wrap),
       true
     );
-  }, [setSelection, deepOrderingTree, wrap]);
+  }, [setActiveIndex, deepOrderingTree, wrap]);
 
   const goToNextOrthogonal = useCallback(() => {
-    setSelection(
+    setActiveIndex(
       current =>
         getOffsetDeepIndex(current, deepOrderingTree, 'nextOrthogonal', wrap),
       true
     );
-  }, [setSelection, deepOrderingTree, wrap]);
+  }, [setActiveIndex, deepOrderingTree, wrap]);
 
   const goToPreviousOrthogonal = useCallback(() => {
-    setSelection(
+    setActiveIndex(
       current =>
         getOffsetDeepIndex(
           current,
@@ -342,31 +342,31 @@ export const useSelectableChildren = ({
         ),
       true
     );
-  }, [setSelection, deepOrderingTree, wrap]);
+  }, [setActiveIndex, deepOrderingTree, wrap]);
 
   const goUp = useCallback(() => {
-    setSelection(
+    setActiveIndex(
       current => getUpwardDeepIndex(current, deepOrderingTree),
       true
     );
-  }, [setSelection, deepOrderingTree]);
+  }, [setActiveIndex, deepOrderingTree]);
 
   const goDown = useCallback(() => {
-    setSelection(
+    setActiveIndex(
       current => getDownwardDeepIndex(current, deepOrderingTree),
       true
     );
-  }, [setSelection, deepOrderingTree]);
+  }, [setActiveIndex, deepOrderingTree]);
 
   // lookup the selected item key based on the index
-  const selectedKey = useMemo(() => getKeyFromIndex(selectionDeepIndex), [
+  const activeKey = useMemo(() => getKeyFromIndex(activeDeepIndex), [
     getKeyFromIndex,
-    selectionDeepIndex,
+    activeDeepIndex,
   ]);
 
   return {
     handleContainerElement,
-    selectionDeepIndex,
+    activeDeepIndex,
     findElementIndex,
     getElement,
     itemCount: finalItemCount,
@@ -376,8 +376,9 @@ export const useSelectableChildren = ({
     goToPreviousOrthogonal,
     goUp,
     goDown,
-    setSelectionDeepIndex: setSelection,
-    selectedKey,
+    setActiveIndex,
+    activeKey,
+    getKeyFromIndex,
     getElementInfo,
   };
 };

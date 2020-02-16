@@ -6,6 +6,7 @@ import { OverridableProps } from '../internal/types';
 type RovingTabItemRenderPropFn = (params: {
   selected: boolean;
   disabled: boolean;
+  active: boolean;
 }) => JSX.Element;
 type RovingTabItemProps = OverridableProps<
   {
@@ -13,13 +14,12 @@ type RovingTabItemProps = OverridableProps<
     coordinate?: number | [number, number];
     keyActions?: KeyActions;
     selectedProps?: { [prop: string]: any };
+    activeProps?: { [prop: string]: any };
     disabled?: boolean;
     children?: ReactNode | RovingTabItemRenderPropFn;
   },
   'button'
 >;
-
-const defaultSelectedProps = { 'aria-checked': true };
 
 export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
   (
@@ -28,31 +28,30 @@ export const RovingTabItem = forwardRef<any, RovingTabItemProps>(
       value,
       coordinate,
       keyActions,
-      selectedProps = defaultSelectedProps,
+      selectedProps,
+      activeProps,
       children,
       disabled,
       ...props
     },
     ref
   ) => {
-    const { props: containerProps, selected } = useRovingTabItem({
+    const { props: containerProps, selected, active } = useRovingTabItem({
       value,
       ref,
       coordinate,
       keyActions,
       disabled,
+      selectedProps,
+      activeProps,
     });
 
     return (
-      <CustomComponent
-        {...(selected ? selectedProps : {})}
-        {...props}
-        {...containerProps}
-        disabled={disabled}
-      >
+      <CustomComponent {...props} {...containerProps} disabled={disabled}>
         {typeof children === 'function'
           ? (children as RovingTabItemRenderPropFn)({
               selected,
+              active,
               disabled: !!disabled,
             })
           : children}

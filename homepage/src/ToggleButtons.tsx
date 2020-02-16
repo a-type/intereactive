@@ -1,6 +1,17 @@
 import * as React from 'react';
 import { RovingTabItem, RovingTabContainer } from '../../src';
 
+const ToggleButton = React.forwardRef<
+  HTMLButtonElement,
+  { children?: any; value?: string }
+>((props, ref) => (
+  <RovingTabItem
+    {...props}
+    ref={ref}
+    activeProps={{ className: 'generic-active' }}
+  />
+));
+
 export const RovingTab = () => {
   const [selectedValue, setSelectedValue] = React.useState<string | null>('in');
 
@@ -18,13 +29,13 @@ export const RovingTab = () => {
         elements as you navigate.
       </p>
       <div className="row">
-        <RovingTabItem value="in">in</RovingTabItem>
-        <RovingTabItem value="te">te</RovingTabItem>
-        <RovingTabItem value="rr">rr</RovingTabItem>
-        <RovingTabItem value="ea">ea</RovingTabItem>
-        <RovingTabItem value="ct">ct</RovingTabItem>
-        <RovingTabItem value="iv">iv</RovingTabItem>
-        <RovingTabItem value="e.">e.</RovingTabItem>
+        <ToggleButton value="in">in</ToggleButton>
+        <ToggleButton value="te">te</ToggleButton>
+        <ToggleButton value="rr">rr</ToggleButton>
+        <ToggleButton value="ea">ea</ToggleButton>
+        <ToggleButton value="ct">ct</ToggleButton>
+        <ToggleButton value="iv">iv</ToggleButton>
+        <ToggleButton value="e.">e.</ToggleButton>
       </div>
       <p>
         If a user tabs back into this group, the last focused element will be

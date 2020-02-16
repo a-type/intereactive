@@ -5,6 +5,7 @@ import { KeyActions, keyActionPresets } from '../keyActions';
 import { normalizeCoordinate } from '../internal/utils/indexing';
 import { DISABLED_ATTRIBUTE } from '../internal/constants';
 import { useCombinedRefs } from '../internal/utils/refs';
+import { GenericProps } from '../internal/types';
 import {
   KEY_DATA_ATTRIBUTE,
   VALUE_DATA_ATTRIBUTE,
@@ -41,7 +42,22 @@ export type UseRovingTabItemOptions<T extends HTMLElement = any> = {
    * but the user won't be able to select it.
    */
   disabled?: boolean;
+  /**
+   * Props which will be supplied to the element when it is active -
+   * i.e. when the user is highlighting it. By default no props
+   * are provided for this state.
+   */
+  activeProps?: GenericProps;
+  /**
+   * Props which will be supplied to the element when it is selected -
+   * i.e. when the current value of the control matches this option. By
+   * default ARIA attributes will be supplied
+   */
+  selectedProps?: GenericProps;
 };
+
+const defaultSelectedProps = { 'aria-checked': true };
+const defaultActiveProps = {};
 
 /**
  * Returns props which can be passed to an element to include it in a roving
@@ -58,11 +74,14 @@ export const useRovingTabItem = <T extends HTMLElement>(
     coordinate,
     keyActions = keyActionPresets.flat.any,
     disabled,
+    selectedProps = defaultSelectedProps,
+    activeProps = defaultActiveProps,
   } = options;
   const {
     onSelect,
     goToNext,
     goToPrevious,
+    activeKey,
     selectedKey,
     goUp,
     goDown,
@@ -117,12 +136,12 @@ export const useRovingTabItem = <T extends HTMLElement>(
     onSelect(key, value);
   }, [onSelect, key, value, disabled]);
 
-  const isSelected = selectedKey === key;
-  const isTabbable = isSelected;
-
   const [manualXCoordinate, manualYCoordinate] = normalizeCoordinate(
     coordinate
   );
+
+  const selected = selectedKey === key;
+  const active = activeKey === key;
 
   return {
     props: {
@@ -135,9 +154,12 @@ export const useRovingTabItem = <T extends HTMLElement>(
       [X_INDEX_DATA_ATTRIBUTE]: manualXCoordinate,
       [Y_INDEX_DATA_ATTRIBUTE]: manualYCoordinate,
       [DISABLED_ATTRIBUTE]: disabled,
-      tabIndex: isTabbable ? 0 : -1,
+      tabIndex: activeKey === key ? 0 : -1,
+      ...(selected ? selectedProps : {}),
+      ...(active ? activeProps : {}),
     },
-    selected: isSelected,
+    selected,
+    active,
     disabled,
   };
 };

@@ -1,6 +1,7 @@
 import React, { createContext, FC, useCallback, useEffect, Ref } from 'react';
 import { useSelectableChildren } from '../internal/utils/selection';
 import { INITIAL_INDEX } from '../internal/constants';
+import { useIdOrGenerated } from '../internal/utils/ids';
 
 export type SelectionContextValue = {
   onSelect: (value?: string) => any;
@@ -11,7 +12,9 @@ export type SelectionContextValue = {
   goDown: () => any;
   goUp: () => any;
   selectedKey: string | null;
+  activeKey: string | null;
   containerRef: Ref<any>;
+  id: string;
 };
 
 const SelectionContext = createContext<SelectionContextValue>({
@@ -24,6 +27,8 @@ const SelectionContext = createContext<SelectionContextValue>({
   goToPreviousOrthogonal: () => {},
   selectedKey: null,
   containerRef: null,
+  activeKey: null,
+  id: '',
 });
 
 export default SelectionContext;
@@ -55,6 +60,12 @@ export type SelectionProviderProps = {
    * callback.
    */
   onChange?: (value: string) => any;
+  /**
+   * Supply a unique ID for this selection system. This ID will be used as
+   * a prefix for any auto-generated IDs to ensure that IDs are unique.
+   * If not provided, a random one will be used.
+   */
+  id?: string;
 };
 
 /**
@@ -70,15 +81,18 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
     shallow,
     itemCount,
     value,
+    id: providedId,
     ...rest
   } = props;
+
+  const id = useIdOrGenerated(providedId, 'select');
 
   // a selection provider acts kind of like a roving tab system, except the
   // items themselves don't get focus. The focus remains on a single element
   // (like an input for an autocomplete), which also handles keyboard interaction.
   // changes in state from that interaction are reflected in the items visually
   const {
-    setSelectionDeepIndex,
+    setActiveIndex,
     goToNext,
     goToPrevious,
     goDown,
@@ -86,7 +100,7 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
     goToNextOrthogonal,
     goToPreviousOrthogonal,
     getElementInfo,
-    selectedKey,
+    activeKey,
     handleContainerElement,
   } = useSelectableChildren({
     observeDeep: !shallow,
@@ -103,7 +117,7 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
   // when the controlled value changes, update the selected index to match
   useEffect(() => {
     if (!value) {
-      setSelectionDeepIndex(INITIAL_INDEX);
+      setActiveIndex(INITIAL_INDEX);
       return;
     }
     const info = getElementInfo(value);
@@ -113,21 +127,21 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
       );
       return;
     }
-    setSelectionDeepIndex(info.index);
-  }, [value, getElementInfo, setSelectionDeepIndex]);
+    setActiveIndex(info.index);
+  }, [value, getElementInfo, setActiveIndex]);
 
   /** either selects the provided value, or the current chosen value */
   const onSelect = useCallback(
     (value?: string) => {
-      const resolvedValue = value || selectedKey;
+      const resolvedValue = value || activeKey;
       // TODO: check this code
       resolvedValue && onChange && onChange(resolvedValue);
     },
-    [selectedKey, onChange]
+    [activeKey, onChange]
   );
 
   const contextValue: SelectionContextValue = {
-    selectedKey,
+    activeKey,
     goToNext,
     goToPrevious,
     goDown,
@@ -136,6 +150,8 @@ export const SelectionProvider: FC<SelectionProviderProps> = props => {
     goToPreviousOrthogonal,
     onSelect,
     containerRef,
+    id,
+    selectedKey: value || null,
   };
 
   return (

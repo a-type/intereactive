@@ -90,11 +90,11 @@ a:focus {
   outline: 0;
 }
 
-button:focus,
-div:focus,
 input:focus,
-td:focus,
-li:focus > .tree-label-selected {
+/** various selected states**/
+*[aria-selected='true'],
+*[aria-checked='true'],
+div.tree-label-selected {
   outline-color: var(--focus-color);
   border-color: var(--focus-color);
   outline-width: 1px;
@@ -107,6 +107,13 @@ li:focus > .tree-label-selected {
     transparent 40%,
     var(--focus-color-light) 100%
   );
+}
+/** various active states **/
+.generic-active,
+div.tree-label-active {
+  background-color: var(--fg-color);
+  color: var(--bg-color-1);
+  border-color: var(--fg-color);
 }
 
 button:disabled,
@@ -233,9 +240,4 @@ table {
   width: 32px;
   height: 32px;
   margin: 0;
-}
-.calendar-day[aria-selected='true'] {
-  color: var(--focus-color);
-  border-color: var(--focus-color);
-  text-shadow: var(--focus-text-effect);
 }

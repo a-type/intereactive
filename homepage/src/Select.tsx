@@ -30,6 +30,7 @@ const SelectOption = React.forwardRef<
     ref={ref}
     disabled={value === '5'}
     className="select-option"
+    activeProps={{ className: 'selection-option generic-active' }}
   />
 ));
 

@@ -28,6 +28,7 @@ const GridItem = React.forwardRef<
 >(({ value, ...rest }, ref) => (
   <RovingTabItem
     className="flex-grid-item"
+    activeProps={{ className: 'flex-grid-item generic-active' }}
     style={{ flex: '1 0 0' }}
     value={value}
     ref={ref}

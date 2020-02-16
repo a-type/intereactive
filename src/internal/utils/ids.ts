@@ -15,3 +15,8 @@ export const useIdOrGenerated = (
     return generatedId.current;
   }
 };
+
+export const getSelectFocusElementId = (groupId: string) => `${groupId}-input`;
+export const getSelectItemsGroupId = (groupId: string) => `${groupId}-options`;
+export const getSelectionItemId = (groupId: string, optionKey: string) =>
+  `${groupId}-option-${optionKey}`;
