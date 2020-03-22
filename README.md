@@ -1,8 +1,10 @@
 # intereactive
 
+## Deprecated / Moved
+
 **Welcome!** Thanks for checking this project out.
 
-I'm in the middle of shifting most of the functionality here to a new project tenatively called [`dimension`, which is located here](https://github.com/a-type/dimension). The goal of this transition is to broaden the usefulness of the selection tooling to include bindings directly to vanilla JS and potentially other frontend frameworks. `intereactive` never quite launched, so I doubt this transition will be any trouble, but if you're interested in the latest code, head [there!](https://github.com/a-type/dimension).
+I've completed shifting the functionality of `intereactive` to a new project called [`dimension`, which is located here](https://github.com/a-type/dimension). The goal of this transition is to broaden the usefulness of the selection tooling to include bindings directly to vanilla JS and potentially other frontend frameworks. `intereactive` never quite launched, so I doubt this transition will be any trouble, but if you're interested in the latest code, head [there!](https://github.com/a-type/dimension).
 
 ![Logo image](media/logo.png)
 
